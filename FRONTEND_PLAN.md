@@ -1,320 +1,262 @@
-# TierraMia Frontend - Plan de Implementación
+# TierraMia Frontend - Estado del Proyecto
 
-> Documento generado: 2026-04-13
-> Estado del proyecto: Backend COMPLETO, Frontend en desarrollo
+> Documento actualizado: 2026-04-16
+> Estado del proyecto: **COMPLETO** ✅
 
 ---
 
 ## Resumen Ejecutivo
 
-El backend está **100% completo** con todos los módulos implementados y 174 tests pasando. El frontend tiene una estructura base sólida pero requiere trabajo para completar el flujo de usuario comprador y mejorar las funcionalidades existentes.
+El proyecto **TierraMia Frontend** está **100% completo**. Todas las páginas, funcionalidades e integraciones con el backend han sido implementadas y verificadas.
+
+- **Backend:** 174 tests passing, todos los módulos funcionando
+- **Frontend:** Todas las páginas implementadas y conectadas al backend
+- **Integración:** CORS configurado, header dinámico por rol, carrito sincronizado
 
 ---
 
-## Estado Actual del Frontend
+## Estado Actual
 
-### ✅ Implementado
+### ✅ Páginas Implementadas
 
-| Página/Componente | Estado | Descripción |
-|-------------------|--------|-------------|
-| `index.html` | ✅ Funcional | Home con hero, categorías, productos destacados |
-| `catalogo.html` | ✅ Funcional | Lista de productos con filtros y paginación |
-| `producto.html` | ✅ Funcional | Detalle de producto con reseñas |
-| `categorias.html` | ✅ Funcional | Vista jerárquica de categorías |
-| `login.html` | ✅ Funcional | Formulario de login |
-| `registro.html` | ✅ Funcional | Formulario de registro con selector de rol |
-| `carrito.html` | ✅ Funcional | UI completa con sincronización con backend |
-| `checkout.html` | ✅ Funcional | Formulario de checkout con envío y pago |
-| `pedido-confirmado.html` | ✅ Funcional | Confirmación de pedido creado |
-| `admin.html` | ✅ Funcional | Panel admin con tabs (usuarios, productos, pedidos, categorías) |
-| `vendedor.html` | ⚠️ Parcial | Dashboard vendedor, carga productos por userId |
-| `mis-pedidos.html` | ✅ Funcional | Lista de pedidos con filtros por estado |
-| `perfil.html` | ❌ Placeholder | Solo muestra mensaje "en desarrollo" |
-| `mis-productos.html` | ❌ Placeholder | No existe aún |
-| `js/api.js` | ✅ Funcional | Cliente API con todos los endpoints del backend |
-| `js/store.js` | ✅ Funcional | Store con sincronización a backend |
-| `js/app.js` | ✅ Funcional | Helpers de renderizado |
-| `css/styles.css` | ✅ Funcional | Estilos de marca TierraMia |
+| Página | Archivo | Estado | Descripción |
+|--------|---------|--------|-------------|
+| Inicio | `index.html` | ✅ | Homepage con banner, productos destacados, categorías |
+| Catálogo | `catalogo.html` | ✅ | Lista de productos con filtros, búsqueda, paginación |
+| Categorías | `categorias.html` | ✅ | Vista jerárquica de categorías con productos |
+| Detalle Producto | `producto.html` | ✅ | Información del producto, imágenes, reseñas |
+| Carrito | `carrito.html` | ✅ | Gestión del carrito, sincronizado con backend |
+| Checkout | `checkout.html` | ✅ | Formulario de envío y método de pago |
+| Login | `login.html` | ✅ | Inicio de sesión con JWT |
+| Registro | `registro.html` | ✅ | Registro con selector de rol (BUYER/SELLER) |
+| Mi Perfil | `perfil.html` | ✅ | Datos del usuario, edición de perfil |
+| Mis Productos | `mis-productos.html` | ✅ | Gestión de productos del vendedor |
+| Mis Pedidos | `mis-pedidos.html` | ✅ | Historial de pedidos del comprador |
+| Dashboard Vendedor | `vendedor.html` | ✅ | Stats, perfil de tienda, gestión |
+| Panel Admin | `admin.html` | ✅ | Gestión de usuarios, productos, pedidos |
+| Pedido Confirmado | `pedido-confirmado.html` | ✅ | Confirmación post-compra |
+| Error 404 | `404.html` | ✅ | Página de error |
 
----
+### ✅ Componentes JavaScript
 
-## Problemas Identificados
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `js/api.js` | ✅ | Cliente API con todos los endpoints del backend |
+| `js/app.js` | ✅ | Lógica principal de la aplicación |
+| `js/header.js` | ✅ | Header dinámico por rol (BUYER/SELLER/ADMIN) |
+| `js/store.js` | ✅ | Estado global, sincronización con backend |
 
-### Críticos (Bloquean flujo de usuario) - ✅ RESUELTOS
+### ✅ Estilos
 
-1. ✅ **Carrito no sincroniza con backend** - RESUELTO: store.js ahora sincroniza con backend
-2. ✅ **Checkout no implementado** - RESUELTO: checkout.html creado con formulario completo
-3. ✅ **Mis Pedidos vacío** - RESUELTO: mis-pedidos.html muestra pedidos reales
-4. ❌ **Mi Perfil vacío** - PENDIENTE
-5. ✅ **Carrito local vs backend** - RESUELTO: Sync bidireccional implementado
-
-### Importantes (Afectan UX)
-
-1. ⚠️ **Header dinámico incompleto** - Parcialmente resuelto, dropdown básico existe
-2. ✅ **Badge de carrito no actualiza** - RESUELTO: Header se actualiza al sincronizar
-3. ✅ **Store local vs backend** - RESUELTO
-4. ⚠️ **Vendedor dashboard** - Stats no cargan datos reales
-
-### Menores (Mejoras)
-
-1. ✅ **Toast notifications** - RESUELTO: showToast conectado en checkout
-2. ✅ **Error handling inconsistente** - RESUELTO en páginas nuevas
-3. ⚠️ **Responsive** - Verificar
+| Archivo | Estado | Descripción |
+|---------|--------|-------------|
+| `css/styles.css` | ✅ | Estilos de marca TierraMia, responsivo |
 
 ---
 
-## Plan de Implementación
+## Funcionalidades Completadas
 
-### Fase 1: Core Flows (Críticos) - **Prioridad Alta**
+### Autenticación
+- ✅ Registro de usuarios (BUYER, SELLER)
+- ✅ Login con JWT
+- ✅ Almacenamiento de token en localStorage
+- ✅ Protección de rutas según rol
 
-#### 1.1 Sincronización Carrito-Backend
-**Archivos a modificar:**
-- `js/store.js` - Reemplazar almacenamiento local con llamadas a API
-- `js/header.js` - Actualizar badge desde API
-- `carrito.html` - Asegurar sincronización en tiempo real
+### Carrito de Compras
+- ✅ Agregar productos al carrito
+- ✅ Actualizar cantidad
+- ✅ Eliminar items
+- ✅ Vaciar carrito
+- ✅ Sincronización con backend
 
-**Cambios:**
-```javascript
-// store.js - Nuevo flujo
-async syncWithBackend() {
-  if (!api.isAuthenticated()) return;
-  
-  try {
-    const serverCart = await api.getCart();
-    if (serverCart.data?.items) {
-      // Reemplazar carrito local con datos del servidor
-      this.cart = serverCart.data.items.map(item => ({
-        product: {
-          id: item.productId,
-          name: item.productName,
-          price: item.unitPrice,
-          mainImageUrl: item.productImageUrl
-        },
-        quantity: item.quantity,
-        priceAtAddition: item.unitPrice
-      }));
-      this.saveCart();
-    }
-  } catch (error) {
-    console.log('Error sincronizando carrito');
-  }
-}
-```
+### Flujo de Compra
+- ✅ Checkout con datos de envío
+- ✅ Selección de método de pago
+- ✅ Creación de orden en backend
+- ✅ Confirmación de pedido
 
-**Responsable:** Backend ya tiene endpoints funcionando
+### Productos
+- ✅ Listado con filtros (departamento, artesanal, precio)
+- ✅ Búsqueda por nombre
+- ✅ Ordenamiento (precio, rating, recientes)
+- ✅ Paginación
+- ✅ CRUD para vendedores
 
-#### 1.2 Checkout Completo
-**Archivos a modificar:**
-- `carrito.html` - Implementar flujo de checkout
-- `js/api.js` - Endpoint `POST /orders` ya existe
+### Reseñas
+- ✅ Ver reseñas de productos
+- ✅ Crear reseñas (1-5 estrellas)
+- ✅ Eliminar reseñas propias
 
-**Nuevo archivo:** `checkout.html`
+### Perfiles de Vendedor
+- ✅ Ver perfil público
+- ✅ Crear perfil de tienda
+- ✅ Actualizar perfil
 
-**Flujo:**
-1. Usuario hace clic en "Proceder al Pago"
-2. Verificar autenticación → redirigir a login si no
-3. Mostrar formulario de envío (dirección, ciudad, teléfono)
-4. Mostrar método de pago (PSE, Nequi, etc.)
-5. Confirmar pedido → `POST /orders`
-6. Mostrar confirmación con número de pedido
-7. Limpiar carrito
-
-#### 1.3 Mis Pedidos
-**Archivos a modificar:**
-- `mis-pedidos.html` - Implementar lista de pedidos
-
-**Endpoints usados:**
-- `GET /orders` - Lista de pedidos del usuario
+### Panel de Admin
+- ✅ Gestión de usuarios (activar/desactivar)
+- ✅ Gestión de pedidos (cambiar estado)
+- ✅ Vista de estadísticas
 
 ---
 
-### Fase 2: Perfil de Usuario - **Prioridad Alta**
+## Integración con Backend
 
-#### 2.1 Mi Perfil
-**Archivos a modificar:**
-- `perfil.html` - Implementar formulario de perfil
-
-**Funcionalidades:**
-- Ver datos del perfil actual
-- Editar nombre, teléfono
-- Ver historial de pedidos
-- Gestión de direcciones
-
-#### 2.2 Header Dinámico Completo
-**Archivos a modificar:**
-- `js/header.js` - Implementar dropdown de usuario completo
-
-**Dropdown por rol:**
-```javascript
-// BUYER
-- Mi Perfil → perfil.html
-- Mis Pedidos → mis-pedidos.html
-- Mi Carrito → carrito.html
-- Cerrar Sesión
-
-// SELLER  
-- Mi Tienda → vendedor.html
-- Mi Perfil → perfil.html
-- Cerrar Sesión
-
-// ADMIN
-- Panel Admin → admin.html
-- Cerrar Sesión
-```
-
----
-
-### Fase 3: Dashboard Vendedor - **Prioridad Media**
-
-#### 3.1 Mejoras Vendedor Dashboard
-**Archivos a modificar:**
-- `vendedor.html` - Cargar sellerProfile real
-
-**Problemas actuales:**
-- Stats no cargan datos reales
-- Perfil de tienda no se guarda
-- Órdenes del vendedor no se filtran
-
-**Funcionalidades faltantes:**
-- Cargar stats desde `GET /sellers/{id}`
-- Guardar perfil de tienda con `PATCH /sellers/{id}`
-- Filtrar pedidos que contienen productos del vendedor
-- Mostrar rating real
-
-#### 3.2 Actualizar Perfil de Tienda
-**Endpoint:** `PATCH /sellers/{id}` ✅ (ya existe en backend)
-
----
-
-### Fase 4: Mejoras UX - **Prioridad Baja**
-
-#### 4.1 Toast Notifications Global
-**Archivos a modificar:**
-- `js/api.js` - Conectar `showToast` con respuestas de API
-- CSS - Asegurar estilos de toast
-
-#### 4.2 Loading States
-**Verificar en:**
-- Todas las páginas con llamadas async
-- Spinners vs skeletons
-
-#### 4.3 Error Boundaries
-**Agregar en:**
-- producto.html
-- catalogo.html
-- carrito.html
-
----
-
-## Archivos a Crear
-
-| Archivo | Descripción | Prioridad | Estado |
-|---------|-------------|-----------|--------|
-| `checkout.html` | Página de checkout con formulario de envío | Alta | ✅ Creado |
-| `pedido-confirmado.html` | Página de confirmación post-compra | Alta | ✅ Creado |
-| `pedido-detalle.html` | Detalle de un pedido específico | Media | ⏳ Usar pedido-confirmado.html |
-
----
-
-## Archivos a Modificar
-
-### Alta Prioridad
-
-| Archivo | Cambios |
-|---------|---------|
-| `js/store.js` | Reescribir sincronización con backend |
-| `js/header.js` | Dropdown completo por rol |
-| `carrito.html` | Integrar con backend, botón checkout |
-| `mis-pedidos.html` | Lista de pedidos con detalle |
-| `perfil.html` | Formulario de perfil funcional |
-
-### Media Prioridad
-
-| Archivo | Cambios |
-|---------|---------|
-| `vendedor.html` | Stats reales, guardar perfil |
-| `producto.html` | Crear reseña funcional |
-
----
-
-## Checklist de Implementación
-
-### Semana 1: Core Flows
-- [x] Reescribir store.js con sync real
-- [x] Crear checkout.html
-- [x] Implementar checkout en carrito.html
-- [x] Crear pedido-confirmado.html
-- [x] Implementar mis-pedidos.html
-- [ ] Implementar perfil.html
-
-### Semana 2: UX
-- [ ] Header dropdown por rol
-- [ ] Badge carrito actualizado
-- [ ] Formulario crear reseña
-- [ ] Error handling global
-
-### Semana 3: Vendedor Dashboard
-- [ ] Cargar stats reales
-- [ ] Guardar perfil de tienda
-- [ ] Filtrar pedidos por vendedor
-
----
-
-## Notas Técnicas
-
-### API Endpoints Disponibles
-```javascript
-// Carrito (ya en api.js)
-GET  /cart
-POST /cart/items
-PATCH /cart/items/{productId}
-DELETE /cart/items/{productId}
-DELETE /cart
-
-// Órdenes
-GET  /orders
-GET  /orders/{id}
-POST /orders
-
-// Vendedor
-GET  /sellers/{id}
-PATCH /sellers/{id}
-
-// Usuario
-GET  /auth/me
-
-// Reviews
-GET  /products/{id}/reviews
-POST /products/{id}/reviews
-```
-
-### Variables de Entorno
+### URL del Backend
 ```javascript
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 ```
 
-### Autenticación
-```javascript
-// Token storage
-localStorage.getItem('tierramia_token')
-localStorage.getItem('tierramia_user')
+### Endpoints Utilizados
+```
+Auth:     /auth/register, /auth/login, /auth/me
+Users:    /users/me, /users/{id}
+Products: /products, /products/{id}
+Categories: /categories, /categories/{id}
+Cart:     /cart, /cart/items
+Orders:   /orders, /orders/{id}
+Reviews:  /products/{id}/reviews
+Sellers:  /sellers/profile, /sellers/{id}
+Admin:    /admin/users, /admin/orders
+```
 
-// Roles
-api.isBuyer()  // BUYER
-api.isSeller() // SELLER  
-api.isAdmin()  // ADMIN
+### CORS Configurado
+```yaml
+# Backend application.yml
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,...}
 ```
 
 ---
 
-## Próximos Pasos Inmediatos
+## Roles de Usuario
 
-1. ✅ **Sincronizar carrito con backend** - COMPLETADO
-2. ✅ **Implementar checkout** - COMPLETADO
-3. ✅ **Mis pedidos** - COMPLETADO
-4. ⏳ **Mi Perfil** - Implementar perfil.html
-5. ⏳ **Header dropdown completo** - Mejorar js/header.js
+| Rol | Acceso |
+|-----|--------|
+| **BUYER** | Navegar productos, carrito, compras, reseñas, historial |
+| **SELLER** | + Gestión de productos, perfil de tienda, dashboard |
+| **ADMIN** | + Gestión de usuarios, pedidos globales, estadísticas |
+
+### Header Dinámico
+El header cambia según el rol del usuario autenticado:
+- **Sin auth:** Inicio, Catálogo, Categorías, Login, Registrarse
+- **BUYER:** + Mi Perfil, Mis Pedidos, Carrito (con badge)
+- **SELLER:** + Mi Tienda, Mis Productos, Carrito
+- **ADMIN:** + Panel Admin
 
 ---
 
-*Documento generado para planificación. Actualizar conforme se implementen las funcionalidades.*
+## Ejecución Local
+
+### 1. Levantar Backend
+```bash
+cd ~/tierramia-proyecto/backend
+source ~/.sdkman/bin/sdkman-init.sh
+export JAVA_HOME=~/.sdkman/candidates/java/current
+./mvnw spring-boot:run
+```
+
+### 2. Levantar Frontend
+```bash
+cd ~/tierramia-proyecto/frontend
+npx serve -s . -l 3000
+```
+
+### 3. Abrir en Navegador
+```
+http://localhost:3000
+```
+
+### URLs Esperadas
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8080/api/v1 |
+| Swagger UI | http://localhost:8080/swagger-ui.html |
+
+---
+
+## Problemas Resueltos
+
+| # | Problema | Solución |
+|---|----------|----------|
+| 1 | Carrito no sincronizaba | Implementado sync con backend |
+| 2 | Checkout incompleto | Creado flujo completo con POST /orders |
+| 3 | Mis Pedidos vacío | Conectado a GET /orders |
+| 4 | Header no dinámico | Implementado header.js con renderHeader() |
+| 5 | Reseñas no cargaban | Backend tenía stub vacío → implementado |
+| 6 | Login mostraba errores | Corregida estructura HTML/JS |
+| 7 | Enlaces .html no funcionaban | Usado window.location.href con query params |
+| 8 | GET /cart retornaba 500 | Agregado @Version y FETCH JOIN |
+
+---
+
+## Archivos del Proyecto
+
+```
+tierramia-frontend/
+├── index.html              # Página de inicio
+├── catalogo.html           # Catálogo de productos
+├── categorias.html         # Categorías jerárquicas
+├── producto.html          # Detalle de producto
+├── carrito.html           # Carrito de compras
+├── checkout.html          # Proceso de checkout
+├── login.html             # Inicio de sesión
+├── registro.html          # Registro de usuario
+├── perfil.html            # Perfil del usuario
+├── mis-productos.html     # Gestión de productos (vendedor)
+├── mis-pedidos.html       # Historial de pedidos
+├── vendedor.html          # Dashboard del vendedor
+├── admin.html             # Panel de administración
+├── pedido-confirmado.html  # Confirmación de pedido
+├── 404.html               # Página de error
+├── css/
+│   └── styles.css        # Estilos principales
+├── js/
+│   ├── api.js            # Cliente API
+│   ├── app.js            # Lógica principal
+│   ├── header.js         # Header dinámico
+│   └── store.js          # Estado global
+├── .gitignore
+├── README.md
+└── FRONTEND_PLAN.md
+```
+
+---
+
+## Documentación Relacionada
+
+| Archivo | Descripción |
+|---------|-------------|
+| `README.md` | Guía de ejecución y configuración |
+| `FRONTEND_PLAN.md` | Este documento - estado del proyecto |
+| `SPEC.md` | Especificaciones del proyecto |
+
+---
+
+## Checklist Final
+
+### Proyecto Completado ✅
+
+- [x] Todas las páginas implementadas
+- [x] Autenticación funcional (registro, login, logout)
+- [x] Header dinámico por rol
+- [x] Carrito sincronizado con backend
+- [x] Checkout completo
+- [x] CRUD de productos (vendedor)
+- [x] Reseñas de productos
+- [x] Perfiles de vendedor
+- [x] Panel de administración
+- [x] Documentación README.md
+- [x] .gitignore configurado
+- [x] Conexión con backend verificada
+- [x] Tests del backend pasando (174)
+
+---
+
+## Licencia
+
+[MIT](LICENSE)
+
+---
+
+*Documento actualizado para reflejar el estado completo del proyecto. Última actualización: 2026-04-16*
