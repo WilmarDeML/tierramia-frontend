@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#2E7D32', secondary: '#8D6E63', accent: '#FF6F00' },
+          fontFamily: { display: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen">
+  
+  <div id="header-placeholder"></div>
+
+  <main class="flex-1" style="background: var(--color-bg);">
+    <div class="container py-8">
+      
+      <div class="mb-8">
+        <h1 class="font-display text-3xl mb-2">Finalizar Compra</h1>
+        <p class="text-secondary">Completa los datos para procesar tu pedido</p>
+      </div>
+
+      <div id="checkout-content">
+        
+        <!-- Empty Cart Message -->
+        <div id="empty-cart" class="card p-8 text-center hidden">
+          <div style="font-size: 5rem; margin-bottom: 1rem;">🛒</div>
+          <h2 class="font-display text-2xl mb-2">Tu carrito está vacío</h2>
+          <p class="text-secondary mb-6">Agrega productos antes de finalizar la compra</p>
+          <a href="catalogo.html" class="btn btn-primary btn-lg">
+            Ver Productos
+          </a>
+        </div>
+
+        <!-- Checkout Form -->
+        <div id="checkout-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <!-- Left: Form -->
+          <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Shipping Address -->
+            <div class="card p-6">
+              <h2 class="font-display text-xl mb-4 flex items-center gap-2">
+                📍 Dirección de Envío
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-1">Dirección *</label>
+                  <input 
+                    type="text" 
+                    id="shippingAddress" 
+                    class="input w-full"
+                    placeholder="Ej: Cra 15 #45-12, Apto 301"
+                    required
+                  >
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1">Ciudad *</label>
+                  <input 
+                    type="text" 
+                    id="shippingCity" 
+                    class="input w-full"
+                    placeholder="Ej: Bogotá"
+                    required
+                  >
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium mb-1">Departamento *</label>
+                  <input 
+                    type="text" 
+                    id="shippingDepartment" 
+                    class="input w-full"
+                    placeholder="Ej: Cundinamarca"
+                    required
+                  >
+                </div>
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-1">Teléfono de contacto *</label>
+                  <input 
+                    type="tel" 
+                    id="shippingPhone" 
+                    class="input w-full"
+                    placeholder="Ej: 300 123 4567"
+                    required
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="card p-6">
+              <h2 class="font-display text-xl mb-4 flex items-center gap-2">
+                💳 Método de Pago
+              </h2>
+              
+              <div class="space-y-3" id="paymentMethods">
+                <label class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <input type="radio" name="paymentMethod" value="CREDIT_CARD" class="w-4 h-4 text-primary" checked>
+                  <span class="flex-1">
+                    <span class="font-medium">Tarjeta de Crédito</span>
+                    <span class="block text-sm text-secondary">Pago seguro con tu tarjeta</span>
+                  </span>
+                  <span>💳</span>
+                </label>
+                
+                <label class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <input type="radio" name="paymentMethod" value="DEBIT_CARD" class="w-4 h-4 text-primary">
+                  <span class="flex-1">
+                    <span class="font-medium">Tarjeta Débito</span>
+                    <span class="block text-sm text-secondary">Pago con tarjeta asociada a tu cuenta</span>
+                  </span>
+                  <span>💳</span>
+                </label>
+                
+                <label class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <input type="radio" name="paymentMethod" value="PSE" class="w-4 h-4 text-primary">
+                  <span class="flex-1">
+                    <span class="font-medium">PSE</span>
+                    <span class="block text-sm text-secondary">Pago directamente desde tu banco</span>
+                  </span>
+                  <span>🏦</span>
+                </label>
+                
+                <label class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <input type="radio" name="paymentMethod" value="Nequi" class="w-4 h-4 text-primary">
+                  <span class="flex-1">
+                    <span class="font-medium">Nequi</span>
+                    <span class="block text-sm text-secondary">Pago rápido con billetera digital</span>
+                  </span>
+                  <span>📱</span>
+                </label>
+                
+                <label class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <input type="radio" name="paymentMethod" value="Daviplata" class="w-4 h-4 text-primary">
+                  <span class="flex-1">
+                    <span class="font-medium">Daviplata</span>
+                    <span class="block text-sm text-secondary">Pago con billetera Daviplata</span>
+                  </span>
+                  <span>📱</span>
+                </label>
+                
+                <label class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY" class="w-4 h-4 text-primary">
+                  <span class="flex-1">
+                    <span class="font-medium">Pago Contra Entrega</span>
+                    <span class="block text-sm text-secondary">Paga cuando recibas tu pedido</span>
+                  </span>
+                  <span>💵</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Order Notes -->
+            <div class="card p-6">
+              <h2 class="font-display text-xl mb-4 flex items-center gap-2">
+                📝 Notas del Pedido (Opcional)
+              </h2>
+              
+              <textarea 
+                id="orderNotes" 
+                class="input w-full h-24"
+                placeholder="Ej: Por favor tocar el timbre al llegar. Casa con reja verde."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Right: Order Summary -->
+          <div class="lg:col-span-1">
+            <div class="card p-6 sticky top-24">
+              <h2 class="font-display text-xl mb-4">Resumen del Pedido</h2>
+              
+              <div id="order-items" class="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                <!-- Items will be rendered here -->
+              </div>
+              
+              <div class="border-t my-4" style="border-color: #E0E0E0;"></div>
+              
+              <div class="flex justify-between mb-2">
+                <span class="text-secondary">Subtotal</span>
+                <span id="subtotal">$0</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-secondary">Envío</span>
+                <span class="text-success">Gratis</span>
+              </div>
+              <div class="border-t my-4" style="border-color: #E0E0E0;"></div>
+              <div class="flex justify-between mb-6">
+                <span class="font-bold text-lg">Total</span>
+                <span id="order-total" class="font-bold text-lg text-primary">$0</span>
+              </div>
+
+              <button 
+                id="place-order-btn"
+                onclick="placeOrder()"
+                class="btn btn-primary btn-lg w-full"
+              >
+                Confirmar Pedido
+              </button>
+
+              <a href="carrito.html" class="btn btn-outline w-full mt-3">
+                ← Volver al Carrito
+              </a>
+
+              <div class="mt-6 pt-4 border-t" style="border-color: #E0E0E0;">
+                <div class="flex items-center gap-2 text-sm text-secondary mb-2">
+                  🔒 Pago 100% seguro
+                </div>
+                <div class="flex items-center gap-2 text-sm text-secondary mb-2">
+                  🚚 Envío a todo Colombia
+                </div>
+                <div class="flex items-center gap-2 text-sm text-secondary">
+                  ↩️ Devolución en 30 días
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Check authentication and load cart
+    async function initCheckout() {
+      await renderHeader();
+
+      if (!api.isAuthenticated()) {
+        showToast('Debes iniciar sesión para continuar', 'warning');
+        window.location.href = 'login.html?redirect=checkout.html';
+        return;
+      }
+
+      // Sync cart from backend
+      await store.syncWithBackend();
+      
+      const cart = store.getCart();
+      
+      if (cart.length === 0) {
+        document.getElementById('empty-cart').classList.remove('hidden');
+        document.getElementById('checkout-form').classList.add('hidden');
+        return;
+      }
+
+      renderOrderSummary();
+    }
+
+    // Render order summary
+    function renderOrderSummary() {
+      const cart = store.getCart();
+      const itemsContainer = document.getElementById('order-items');
+      
+      itemsContainer.innerHTML = cart.map(item => `
+        <div class="flex gap-3 items-center">
+          <img 
+            src="${item.product?.mainImageUrl || item.productImageUrl || ''}" 
+            alt="${item.product?.name || item.productName || 'Producto'}"
+            class="w-12 h-12 object-cover rounded"
+            onerror="this.src='https://via.placeholder.com/48x48?text=Img'"
+          >
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-sm truncate">${item.product?.name || item.productName || 'Producto'}</p>
+            <p class="text-xs text-secondary">Cant: ${item.quantity}</p>
+          </div>
+          <p class="font-medium text-sm">${formatPrice((item.product?.price || item.unitPrice || 0) * item.quantity)}</p>
+        </div>
+      `).join('');
+
+      const total = store.getTotal();
+      document.getElementById('subtotal').textContent = formatPrice(total);
+      document.getElementById('order-total').textContent = formatPrice(total);
+    }
+
+    // Place order
+    async function placeOrder() {
+      const btn = document.getElementById('place-order-btn');
+      btn.disabled = true;
+      btn.textContent = 'Procesando...';
+
+      const shippingAddress = document.getElementById('shippingAddress').value.trim();
+      const shippingCity = document.getElementById('shippingCity').value.trim();
+      const shippingDepartment = document.getElementById('shippingDepartment').value.trim();
+      const shippingPhone = document.getElementById('shippingPhone').value.trim();
+      const notes = document.getElementById('orderNotes').value.trim();
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+
+      // Validation
+      if (!shippingAddress || !shippingCity || !shippingDepartment || !shippingPhone) {
+        showToast('Por favor completa todos los campos obligatorios', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Confirmar Pedido';
+        return;
+      }
+
+      if (!paymentMethod) {
+        showToast('Por favor selecciona un método de pago', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Confirmar Pedido';
+        return;
+      }
+
+      const cart = store.getCart();
+      if (cart.length === 0) {
+        showToast('Tu carrito está vacío', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Confirmar Pedido';
+        return;
+      }
+
+      // Build order items
+      const items = cart.map(item => ({
+        productId: item.productId || item.product?.id,
+        quantity: item.quantity,
+        priceAtPurchase: item.product?.price || item.unitPrice
+      }));
+
+      const orderData = {
+        shippingAddress,
+        shippingCity,
+        shippingDepartment,
+        shippingPhone,
+        notes: notes || null,
+        paymentMethod,
+        items
+      };
+
+      try {
+        const response = await api.createOrder(orderData);
+        
+        if (response.success && response.data) {
+          // Clear local cart
+          store.clearCart();
+          
+          showToast('¡Pedido creado exitosamente!', 'success');
+          
+          // Redirect to confirmation page with order ID
+          window.location.href = `pedido-confirmado.html?id=${response.data.id}`;
+        } else {
+          throw new Error(response.error?.message || 'Error al crear el pedido');
+        }
+      } catch (error) {
+        console.error('Error placing order:', error);
+        showToast(error.message || 'Error al crear el pedido', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Confirmar Pedido';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initCheckout);
+  </script>
+</body>
+</html>

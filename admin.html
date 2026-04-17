@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2E7D32',
+            'primary-dark': '#1B5E20',
+            secondary: '#8D6E63',
+            accent: '#FF6F00',
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen" style="background: var(--color-bg);">
+  
+  <!-- Header Dynamic -->
+  <div id="header-placeholder"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1 container py-8">
+    
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="font-display text-3xl mb-2">Panel de Administración</h1>
+      <p class="text-secondary">Gestiona usuarios, productos y pedidos</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
+            👥
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Usuarios</p>
+            <p id="stat-users" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-2xl">
+            📦
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Productos</p>
+            <p id="stat-products" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-2xl">
+            🛒
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Pedidos</p>
+            <p id="stat-orders" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-2xl">
+            🏪
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Vendedores</p>
+            <p id="stat-sellers" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b mb-6 overflow-x-auto">
+      <button onclick="switchTab('users')" id="tab-users" class="tab-btn active px-6 py-3 font-medium whitespace-nowrap">
+        Usuarios
+      </button>
+      <button onclick="switchTab('products')" id="tab-products" class="tab-btn px-6 py-3 font-medium whitespace-nowrap">
+        Productos
+      </button>
+      <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn px-6 py-3 font-medium whitespace-nowrap">
+        Pedidos
+      </button>
+      <button onclick="switchTab('categories')" id="tab-categories" class="tab-btn px-6 py-3 font-medium whitespace-nowrap">
+        Categorías
+      </button>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="content-users" class="tab-content">
+      <div class="card overflow-hidden">
+        <div class="p-4 border-b flex items-center justify-between">
+          <input type="text" id="user-search" placeholder="Buscar usuarios..." 
+                 class="form-input w-64" onkeyup="filterUsers()">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Usuario</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Rol</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Estado</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Fecha Registro</th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-secondary">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body" class="divide-y">
+              <tr>
+                <td colspan="5" class="px-4 py-8 text-center">
+                  <div class="spinner mx-auto"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="content-products" class="tab-content hidden">
+      <div class="card overflow-hidden">
+        <div class="p-4 border-b flex items-center justify-between">
+          <input type="text" id="product-search" placeholder="Buscar productos..." 
+                 class="form-input w-64" onkeyup="filterProducts()">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Producto</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Vendedor</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Precio</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Estado</th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-secondary">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="products-table-body" class="divide-y">
+              <tr>
+                <td colspan="5" class="px-4 py-8 text-center">
+                  <div class="spinner mx-auto"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="content-orders" class="tab-content hidden">
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">ID</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Cliente</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Total</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Estado</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Fecha</th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-secondary">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body" class="divide-y">
+              <tr>
+                <td colspan="6" class="px-4 py-8 text-center">
+                  <div class="spinner mx-auto"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories Tab -->
+    <div id="content-categories" class="tab-content hidden">
+      <div class="flex justify-end mb-4">
+        <button onclick="showCategoryModal()" class="btn btn-primary">
+          + Nueva Categoría
+        </button>
+      </div>
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Nombre</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Padre</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Slug</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Productos</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-secondary">Estado</th>
+                <th class="px-4 py-3 text-right text-sm font-medium text-secondary">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="categories-table-body" class="divide-y">
+              <tr>
+                <td colspan="6" class="px-4 py-8 text-center">
+                  <div class="spinner mx-auto"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Category Modal -->
+  <div id="category-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full">
+      <div class="p-6 border-b flex items-center justify-between">
+        <h2 id="category-modal-title" class="font-display text-xl">Nueva Categoría</h2>
+        <button onclick="closeCategoryModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+      <form id="category-form" class="p-6 space-y-4">
+        <input type="hidden" id="category-id">
+        <div class="form-group">
+          <label class="form-label">Nombre *</label>
+          <input type="text" id="category-name" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría Padre</label>
+          <select id="category-parent" class="form-input">
+            <option value="">Ninguna (categoría raíz)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea id="category-description" class="form-input" rows="2"></textarea>
+        </div>
+        <div class="flex gap-4">
+          <button type="button" onclick="closeCategoryModal()" class="btn btn-outline flex-1">Cancelar</button>
+          <button type="submit" class="btn btn-primary flex-1">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <style>
+    .tab-btn {
+      color: var(--color-text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      color: var(--color-primary);
+    }
+    .tab-btn.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+  </style>
+
+  <script>
+    let currentTab = 'users';
+    let allUsers = [];
+    let allProducts = [];
+    let allOrders = [];
+    let allCategories = [];
+
+    // Check auth
+    if (!api.isAuthenticated() || !api.isAdmin()) {
+      window.location.href = 'login.html';
+    }
+
+    // Switch tabs
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+      document.getElementById(`content-${tab}`).classList.remove('hidden');
+    }
+
+    // Load all data
+    async function loadData() {
+      await Promise.all([
+        loadUsers(),
+        loadProducts(),
+        loadOrders(),
+        loadCategories()
+      ]);
+      updateStats();
+    }
+
+    function updateStats() {
+      document.getElementById('stat-users').textContent = allUsers.length;
+      document.getElementById('stat-products').textContent = allProducts.length;
+      document.getElementById('stat-orders').textContent = allOrders.length;
+      document.getElementById('stat-sellers').textContent = allUsers.filter(u => u.role === 'SELLER').length;
+    }
+
+    // Load users
+    async function loadUsers() {
+      try {
+        const response = await api.getAllUsers();
+        allUsers = response.data || [];
+        renderUsersTable(allUsers);
+      } catch (error) {
+        console.error('Error loading users:', error);
+        document.getElementById('users-table-body').innerHTML = `
+          <tr><td colspan="5" class="px-4 py-8 text-center text-red-600">Error al cargar usuarios</td></tr>
+        `;
+      }
+    }
+
+    function renderUsersTable(users) {
+      const tbody = document.getElementById('users-table-body');
+      
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-secondary">No hay usuarios</td></tr>`;
+        return;
+      }
+      
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td class="px-4 py-3">
+            <div class="font-medium">${u.firstName} ${u.lastName}</div>
+            <div class="text-sm text-secondary">${u.email}</div>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${
+              u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' :
+              u.role === 'SELLER' ? 'bg-blue-100 text-blue-700' :
+              'bg-gray-100 text-gray-700'
+            }">
+              ${u.role}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${
+              u.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }">
+              ${u.isActive ? 'Activo' : 'Inactivo'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-sm text-secondary">${formatDate(u.createdAt)}</td>
+          <td class="px-4 py-3 text-right">
+            <div class="flex justify-end gap-2">
+              <button onclick="toggleUserStatus('${u.id}', ${!u.isActive})" 
+                      class="btn btn-sm btn-outline ${u.isActive ? 'text-red-600' : 'text-green-600'}">
+                ${u.isActive ? 'Desactivar' : 'Activar'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterUsers() {
+      const search = document.getElementById('user-search').value.toLowerCase();
+      const filtered = allUsers.filter(u => 
+        u.email.toLowerCase().includes(search) ||
+        u.firstName.toLowerCase().includes(search) ||
+        u.lastName.toLowerCase().includes(search)
+      );
+      renderUsersTable(filtered);
+    }
+
+    async function toggleUserStatus(id, activate) {
+      try {
+        await api.request(`/users/${id}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ isActive: activate })
+        });
+        showToast(activate ? 'Usuario activado' : 'Usuario desactivado', 'success');
+        loadUsers();
+      } catch (error) {
+        showToast('Error al actualizar usuario', 'error');
+      }
+    }
+
+    // Load products
+    async function loadProducts() {
+      try {
+        const response = await api.getProducts({ size: 100 });
+        allProducts = response.data?.products || [];
+        renderProductsTable(allProducts);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        document.getElementById('products-table-body').innerHTML = `
+          <tr><td colspan="5" class="px-4 py-8 text-center text-red-600">Error al cargar productos</td></tr>
+        `;
+      }
+    }
+
+    function renderProductsTable(products) {
+      const tbody = document.getElementById('products-table-body');
+      
+      if (products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-secondary">No hay productos</td></tr>`;
+        return;
+      }
+      
+      tbody.innerHTML = products.map(p => `
+        <tr>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <img src="${p.mainImageUrl || 'https://via.placeholder.com/40'}" alt="" class="w-10 h-10 rounded object-cover">
+              <div>
+                <div class="font-medium">${p.name}</div>
+                <div class="text-sm text-secondary">${p.categoryName || ''}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-sm">${p.sellerName || 'N/A'}</td>
+          <td class="px-4 py-3 font-medium">${formatPrice(p.price)}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${
+              p.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }">
+              ${p.isActive ? 'Activo' : 'Inactivo'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="toggleProductStatus('${p.id}', ${!p.isActive})" 
+                    class="btn btn-sm btn-outline ${p.isActive ? 'text-red-600' : 'text-green-600'}">
+              ${p.isActive ? 'Desactivar' : 'Activar'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterProducts() {
+      const search = document.getElementById('product-search').value.toLowerCase();
+      const filtered = allProducts.filter(p => 
+        p.name.toLowerCase().includes(search) ||
+        (p.sellerName && p.sellerName.toLowerCase().includes(search))
+      );
+      renderProductsTable(filtered);
+    }
+
+    async function toggleProductStatus(id, activate) {
+      try {
+        await api.updateProduct(id, { isActive: activate });
+        showToast(activate ? 'Producto activado' : 'Producto desactivado', 'success');
+        loadProducts();
+      } catch (error) {
+        showToast('Error al actualizar producto', 'error');
+      }
+    }
+
+    // Load orders
+    async function loadOrders() {
+      try {
+        const response = await api.getAllOrders();
+        allOrders = response.data || [];
+        renderOrdersTable(allOrders);
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        document.getElementById('orders-table-body').innerHTML = `
+          <tr><td colspan="6" class="px-4 py-8 text-center text-red-600">Error al cargar pedidos</td></tr>
+        `;
+      }
+    }
+
+    function renderOrdersTable(orders) {
+      const tbody = document.getElementById('orders-table-body');
+      
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-secondary">No hay pedidos</td></tr>`;
+        return;
+      }
+      
+      const statusColors = {
+        'PENDING': 'bg-yellow-100 text-yellow-700',
+        'PROCESSING': 'bg-blue-100 text-blue-700',
+        'SHIPPED': 'bg-purple-100 text-purple-700',
+        'DELIVERED': 'bg-green-100 text-green-700',
+        'CANCELLED': 'bg-red-100 text-red-700'
+      };
+      
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td class="px-4 py-3 font-mono text-sm">${o.id?.substring(0, 8)}...</td>
+          <td class="px-4 py-3">${o.buyerName || o.userEmail || 'N/A'}</td>
+          <td class="px-4 py-3 font-medium">${formatPrice(o.totalAmount || 0)}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusColors[o.status] || 'bg-gray-100'}">
+              ${o.status || 'N/A'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-sm text-secondary">${formatDate(o.createdAt)}</td>
+          <td class="px-4 py-3 text-right">
+            <select onchange="updateOrderStatus('${o.id}', this.value)" class="form-input text-sm py-1">
+              <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Pendiente</option>
+              <option value="PROCESSING" ${o.status === 'PROCESSING' ? 'selected' : ''}>Procesando</option>
+              <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>Enviado</option>
+              <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>Entregado</option>
+              <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Cancelado</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateOrderStatus(id, status) {
+      try {
+        await api.updateOrderStatus(id, status);
+        showToast('Estado actualizado', 'success');
+        loadOrders();
+      } catch (error) {
+        showToast('Error al actualizar pedido', 'error');
+      }
+    }
+
+    // Load categories
+    async function loadCategories() {
+      try {
+        const response = await api.getCategories();
+        allCategories = response.data || [];
+        renderCategoriesTable(allCategories);
+        
+        // Load categories for modal
+        const select = document.getElementById('category-parent');
+        allCategories.filter(c => !c.parentId).forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.name;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        document.getElementById('categories-table-body').innerHTML = `
+          <tr><td colspan="6" class="px-4 py-8 text-center text-red-600">Error al cargar categorías</td></tr>
+        `;
+      }
+    }
+
+    function renderCategoriesTable(categories) {
+      const tbody = document.getElementById('categories-table-body');
+      
+      if (categories.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-secondary">No hay categorías</td></tr>`;
+        return;
+      }
+      
+      tbody.innerHTML = categories.map(c => `
+        <tr>
+          <td class="px-4 py-3 font-medium">${c.name}</td>
+          <td class="px-4 py-3 text-sm text-secondary">${c.parentName || '-'}</td>
+          <td class="px-4 py-3 font-mono text-sm">${c.slug}</td>
+          <td class="px-4 py-3">${c.productCount || 0}</td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${
+              c.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }">
+              ${c.isActive ? 'Activa' : 'Inactiva'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <div class="flex justify-end gap-2">
+              <button onclick="editCategory('${c.id}')" class="btn btn-sm btn-outline">Editar</button>
+              <button onclick="toggleCategoryStatus('${c.id}', ${!c.isActive})" 
+                      class="btn btn-sm btn-outline ${c.isActive ? 'text-red-600' : 'text-green-600'}">
+                ${c.isActive ? 'Desactivar' : 'Activar'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function showCategoryModal(category = null) {
+      document.getElementById('category-modal').classList.remove('hidden');
+      document.getElementById('category-form').reset();
+      document.getElementById('category-id').value = '';
+      document.getElementById('category-modal-title').textContent = 'Nueva Categoría';
+      
+      if (category) {
+        document.getElementById('category-modal-title').textContent = 'Editar Categoría';
+        document.getElementById('category-id').value = category.id;
+        document.getElementById('category-name').value = category.name;
+        document.getElementById('category-description').value = category.description || '';
+        if (category.parentId) {
+          document.getElementById('category-parent').value = category.parentId;
+        }
+      }
+    }
+
+    function closeCategoryModal() {
+      document.getElementById('category-modal').classList.add('hidden');
+    }
+
+    function editCategory(id) {
+      const category = allCategories.find(c => c.id === id);
+      if (category) {
+        showCategoryModal(category);
+      }
+    }
+
+    async function toggleCategoryStatus(id, activate) {
+      try {
+        await api.request(`/categories/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ isActive: activate })
+        });
+        showToast(activate ? 'Categoría activada' : 'Categoría desactivada', 'success');
+        loadCategories();
+      } catch (error) {
+        showToast('Error al actualizar categoría', 'error');
+      }
+    }
+
+    document.getElementById('category-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('category-id').value;
+      const data = {
+        name: document.getElementById('category-name').value,
+        description: document.getElementById('category-description').value,
+        parentId: document.getElementById('category-parent').value || null
+      };
+      
+      try {
+        if (id) {
+          await api.request(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+          showToast('Categoría actualizada', 'success');
+        } else {
+          await api.request('/categories', { method: 'POST', body: JSON.stringify(data) });
+          showToast('Categoría creada', 'success');
+        }
+        closeCategoryModal();
+        loadCategories();
+      } catch (error) {
+        showToast('Error al guardar categoría', 'error');
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      loadData();
+    });
+  </script>
+</body>
+</html>

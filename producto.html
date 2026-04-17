@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Producto - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2E7D32',
+            secondary: '#8D6E63',
+            accent: '#FF6F00',
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen">
+   
+  <!-- Header -->
+  <div id="header-placeholder"></div>
+  <noscript>
+    <header class="header">
+      <div class="container">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🌿</div>
+          <span>TierraMia</span>
+        </a>
+        <nav>
+          <a href="index.html">Inicio</a>
+          <a href="catalogo.html">Catálogo</a>
+          <a href="carrito.html">Carrito</a>
+        </nav>
+      </div>
+    </header>
+  </noscript>
+
+  <!-- Main Content -->
+  <main class="flex-1" style="background: var(--color-bg);">
+    <div class="container py-8">
+      
+      <!-- Breadcrumb -->
+      <nav class="mb-6">
+        <a href="index.html" class="text-secondary hover:text-primary">Inicio</a>
+        <span class="text-secondary mx-2">/</span>
+        <a href="catalogo.html" class="text-secondary hover:text-primary">Productos</a>
+        <span class="text-secondary mx-2">/</span>
+        <span id="breadcrumb-name">Cargando...</span>
+      </nav>
+
+      <!-- Product Detail -->
+      <div id="product-detail" class="mb-12">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Reviews Section -->
+      <section class="mb-12">
+        <h2 class="font-display text-2xl mb-6">Reseñas del Producto</h2>
+        <div id="reviews-container">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </section>
+
+      <!-- Related Products -->
+      <section>
+        <h2 class="font-display text-2xl mb-6">Productos Relacionados</h2>
+        <div id="related-products" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Obtener ID del producto de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+    
+    console.log('Product ID from URL:', productId);
+    console.log('Full URL:', window.location.href);
+
+    // Cargar detalles del producto
+    async function loadProduct() {
+      console.log('Loading product with ID:', productId);
+      
+      if (!productId) {
+        document.getElementById('product-detail').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <h3 class="empty-state-title">Producto no encontrado</h3>
+            <p>No se especificó un producto</p>
+            <a href="catalogo.html" class="btn btn-primary mt-4">Ver Catálogo</a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        console.log('Fetching from API...');
+        const response = await api.getProduct(productId);
+        console.log('API Response:', response);
+        const product = response.data;
+        console.log('Product data:', product);
+
+        if (!product) {
+          throw new Error('Producto no encontrado');
+        }
+
+        document.getElementById('breadcrumb-name').textContent = product.name;
+        document.title = `${product.name} - TierraMia`;
+
+        const discount = getDiscountPercentage(product.price, product.compareAtPrice);
+
+        document.getElementById('product-detail').innerHTML = `
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Images -->
+            <div>
+              <div class="card overflow-hidden">
+                <img 
+                  id="main-image"
+                  src="${product.mainImageUrl}" 
+                  alt="${product.name}"
+                  style="width: 100%; height: 400px; object-fit: cover;"
+                  onerror="this.src='https://via.placeholder.com/600x400?text=Sin+imagen'"
+                >
+              </div>
+              ${product.images && product.images.length > 1 ? `
+                <div class="flex gap-2 mt-4">
+                  ${product.images.map((img, i) => `
+                    <img 
+                      src="${img.imageUrl}" 
+                      alt="Imagen ${i + 1}"
+                      class="w-20 h-20 object-cover rounded-lg cursor-pointer border-2 ${i === 0 ? 'border-primary' : 'border-transparent'}"
+                      onclick="changeMainImage('${img.imageUrl}', this)"
+                    >
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Info -->
+            <div>
+              <div class="mb-4">
+                ${product.isHandmade ? '<span class="badge badge-handmade mb-2">✋ Producto Artesanal</span>' : ''}
+                <span class="badge badge-success mb-2">✓ Disponible</span>
+              </div>
+
+              <h1 class="font-display text-3xl mb-2">${product.name}</h1>
+              
+              <div class="flex items-center gap-4 mb-4">
+                <div class="rating">
+                  <span class="star text-xl">★</span>
+                  <span class="text-lg font-medium">${product.rating?.toFixed(1) || '0.0'}</span>
+                  <span class="text-secondary">(${product.reviewCount || 0} reseñas)</span>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <span class="text-3xl font-bold text-primary">${formatPrice(product.price)}</span>
+                ${discount > 0 ? `
+                  <span class="text-xl text-secondary line-through ml-2">${formatPrice(product.compareAtPrice)}</span>
+                  <span class="badge badge-warning ml-2">-${discount}%</span>
+                ` : ''}
+              </div>
+
+              <div class="mb-6">
+                <p class="text-secondary">
+                  <strong>Origen:</strong> ${product.originDepartment}, ${product.originCity}
+                </p>
+                <p class="text-secondary">
+                  <strong>Categoría:</strong> ${product.category?.name || 'Sin categoría'}
+                </p>
+                <p class="text-secondary">
+                  <strong>Stock disponible:</strong> ${product.stockQuantity || 0} unidades
+                </p>
+              </div>
+
+              <p class="text-lg mb-6">${product.description}</p>
+
+              <!-- Seller Info -->
+              ${product.seller ? `
+                <div class="card p-4 mb-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-white text-xl">
+                      🏪
+                    </div>
+                    <div>
+                      <p class="font-medium">${product.seller.businessName || 'Tienda'}</p>
+                      <p class="text-sm text-secondary">
+                        ★ ${product.seller.rating?.toFixed(1) || '0.0'} 
+                        | ${product.seller.department || ''}, ${product.seller.city || ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Add to Cart -->
+              <div class="flex gap-4 mb-6">
+                <div class="flex items-center border rounded-lg" style="border-color: #E0E0E0;">
+                  <button onclick="updateQuantity(-1)" class="px-4 py-2 text-xl hover:bg-gray-100">-</button>
+                  <input 
+                    type="number" 
+                    id="quantity-input" 
+                    value="1" 
+                    min="1" 
+                    max="${product.stockQuantity || 1}"
+                    class="w-16 text-center border-0 outline-none"
+                  >
+                  <button onclick="updateQuantity(1)" class="px-4 py-2 text-xl hover:bg-gray-100">+</button>
+                </div>
+                
+                <button onclick="addToCart()" class="btn btn-primary btn-lg flex-1">
+                  🛒 Agregar al Carrito
+                </button>
+              </div>
+
+              <!-- Features -->
+              <div class="grid grid-cols-3 gap-4 text-center text-sm">
+                <div class="p-3 rounded-lg" style="background: var(--color-bg-warm);">
+                  <div class="text-2xl mb-1">🚚</div>
+                  <p>Envío Gratis</p>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--color-bg-warm);">
+                  <div class="text-2xl mb-1">↩️</div>
+                  <p>Devolución 30 días</p>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--color-bg-warm);">
+                  <div class="text-2xl mb-1">🔒</div>
+                  <p>Pago Seguro</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Cargar reseñas
+        loadReviews();
+        
+        // Cargar relacionados
+        loadRelatedProducts(product.categoryId);
+
+      } catch (error) {
+        console.error('Error cargando producto:', error);
+        document.getElementById('product-detail').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <h3 class="empty-state-title">Producto no encontrado</h3>
+            <p>Este producto podría haber sido eliminado o no existe.</p>
+            <a href="catalogo.html" class="btn btn-primary mt-4">Ver Catálogo</a>
+          </div>
+        `;
+      }
+    }
+
+    // Cambiar imagen principal
+    function changeMainImage(url, el) {
+      document.getElementById('main-image').src = url;
+      document.querySelectorAll('#product-detail .border-primary').forEach(img => {
+        img.classList.remove('border-primary');
+        img.classList.add('border-transparent');
+      });
+      el.classList.remove('border-transparent');
+      el.classList.add('border-primary');
+    }
+
+    // Actualizar cantidad
+    function updateQuantity(delta) {
+      const input = document.getElementById('quantity-input');
+      let value = parseInt(input.value) + delta;
+      const max = parseInt(input.max);
+      if (value < 1) value = 1;
+      if (value > max) value = max;
+      input.value = value;
+    }
+
+    // Agregar al carrito
+    async function addToCart() {
+      const quantity = parseInt(document.getElementById('quantity-input').value);
+      
+      // Obtener datos del producto del DOM
+      const productData = {
+        id: productId,
+        name: document.querySelector('#product-detail h1')?.textContent,
+        price: parseInt(document.querySelector('#product-detail .text-3xl.font-bold')?.textContent?.replace(/[^\d]/g, '') || 0),
+        mainImageUrl: document.getElementById('main-image')?.src
+      };
+
+      if (api.isAuthenticated()) {
+        try {
+          await api.addToCart(productId, quantity);
+          showToast('Producto agregado al carrito', 'success');
+        } catch (error) {
+          showToast('Error al agregar al carrito', 'error');
+        }
+      }
+
+      // Agregar al store local
+      store.addItem(productData, quantity);
+      showToast(`${quantity} producto(s) agregado(s) al carrito`, 'success');
+    }
+
+    // Cargar reseñas
+    async function loadReviews() {
+      const container = document.getElementById('reviews-container');
+      
+      try {
+        const response = await api.getProductReviews(productId);
+        const data = response.data;
+        
+        if (data && data.reviews && data.reviews.length > 0) {
+          container.innerHTML = `
+            ${data.summary ? `
+              <div class="card p-4 mb-6">
+                <div class="flex items-center gap-4">
+                  <div class="text-center">
+                    <div class="text-4xl font-bold text-primary">${data.summary.averageRating?.toFixed(1) || '0.0'}</div>
+                    <div class="rating mt-1">
+                      ${generateStarRating(data.summary.averageRating || 0)}
+                    </div>
+                    <p class="text-sm text-secondary mt-1">${data.summary.totalReviews || 0} reseñas</p>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+            
+            <div class="space-y-4">
+              ${data.reviews.map(review => `
+                <div class="card p-4">
+                  <div class="flex items-start justify-between mb-2">
+                    <div>
+                      <p class="font-medium">${review.user?.firstName || 'Usuario'} ${review.user?.lastName?.charAt(0) || ''}.</p>
+                      <div class="rating text-sm">
+                        ${generateStarRating(review.rating)}
+                      </div>
+                    </div>
+                    <span class="text-sm text-secondary">${formatDate(review.createdAt)}</span>
+                  </div>
+                  ${review.title ? `<h4 class="font-medium mb-1">${review.title}</h4>` : ''}
+                  <p class="text-secondary">${review.comment || ''}</p>
+                  ${review.isVerifiedPurchase ? `
+                    <span class="badge badge-success mt-2">✓ Compra verificada</span>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📝</div>
+              <h3 class="empty-state-title">Sin reseñas aún</h3>
+              <p>¡Sé el primero en calificar este producto!</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error cargando reseñas:', error);
+        container.innerHTML = `
+          <div class="text-center py-8 text-secondary">
+            <p>No se pudieron cargar las reseñas</p>
+          </div>
+        `;
+      }
+    }
+
+    // Cargar productos relacionados
+    async function loadRelatedProducts(categoryId) {
+      const container = document.getElementById('related-products');
+      
+      if (!categoryId) {
+        container.innerHTML = '';
+        return;
+      }
+
+      try {
+        const response = await api.getProducts({ categoryId, page: 1, size: 4 });
+        const products = response.data?.products || [];
+        
+        if (products.length > 1) {
+          container.innerHTML = products
+            .filter(p => p.id !== productId)
+            .slice(0, 4)
+            .map(p => renderProductCard(p))
+            .join('');
+        } else {
+          container.innerHTML = '';
+        }
+      } catch (error) {
+        console.error('Error cargando productos relacionados:', error);
+        container.innerHTML = '';
+      }
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      loadProduct();
+    });
+  </script>
+</body>
+</html>

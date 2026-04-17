@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2E7D32',
+            secondary: '#8D6E63',
+            accent: '#FF6F00',
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen">
+   
+  <!-- Header Dynamic -->
+  <div id="header-placeholder"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1" style="background: var(--color-bg);">
+    <div class="container py-8">
+      
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="font-display text-3xl mb-2">Catálogo de Productos</h1>
+        <p class="text-secondary">Descubre productos colombianos auténticos</p>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- Sidebar Filters -->
+        <aside class="lg:w-64 flex-shrink-0">
+          <div class="card p-6 sticky top-24">
+            <h2 class="font-display text-xl mb-4">Filtros</h2>
+            
+            <!-- Search -->
+            <div class="form-group">
+              <label class="form-label">Buscar</label>
+              <input 
+                type="text" 
+                id="search-input" 
+                class="form-input" 
+                placeholder="Nombre o descripción..."
+              >
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label class="form-label">Categoría</label>
+              <select id="category-select" class="form-input">
+                <option value="">Todas las categorías</option>
+              </select>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+              <label class="form-label">Departamento</label>
+              <select id="department-select" class="form-input">
+                <option value="">Todos</option>
+                <option value="Boyacá">Boyacá</option>
+                <option value="La Guajira">La Guajira</option>
+                <option value="Antioquia">Antioquia</option>
+                <option value="Nariño">Nariño</option>
+                <option value="Santander">Santander</option>
+                <option value="Cundinamarca">Cundinamarca</option>
+                <option value="Cauca">Cauca</option>
+                <option value="Huila">Huila</option>
+              </select>
+            </div>
+
+            <!-- Price Range -->
+            <div class="form-group">
+              <label class="form-label">Precio</label>
+              <div class="flex gap-2">
+                <input 
+                  type="number" 
+                  id="min-price" 
+                  class="form-input" 
+                  placeholder="Min"
+                >
+                <input 
+                  type="number" 
+                  id="max-price" 
+                  class="form-input" 
+                  placeholder="Max"
+                >
+              </div>
+            </div>
+
+            <!-- Handmade -->
+            <div class="form-group">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="handmade-check" class="w-5 h-5" style="accent-color: var(--color-primary);">
+                <span>Solo productos artesanales</span>
+              </label>
+            </div>
+
+            <!-- Sort -->
+            <div class="form-group">
+              <label class="form-label">Ordenar por</label>
+              <select id="sort-select" class="form-input">
+                <option value="newest">Más recientes</option>
+                <option value="price_asc">Precio: menor a mayor</option>
+                <option value="price_desc">Precio: mayor a menor</option>
+                <option value="rating">Mejor valorados</option>
+                <option value="name">Nombre A-Z</option>
+              </select>
+            </div>
+
+            <!-- Apply Filters -->
+            <button onclick="applyFilters()" class="btn btn-primary w-full">
+              Aplicar Filtros
+            </button>
+
+            <button onclick="clearFilters()" class="btn btn-outline w-full mt-2">
+              Limpiar Filtros
+            </button>
+          </div>
+        </aside>
+
+        <!-- Products Grid -->
+        <div class="flex-1">
+          <!-- Results Info -->
+          <div class="flex items-center justify-between mb-4">
+            <p id="results-info" class="text-secondary">
+              <span id="total-count">0</span> productos encontrados
+            </p>
+            <button onclick="toggleFilters()" class="btn btn-sm btn-outline lg:hidden">
+              ⚙️ Filtros
+            </button>
+          </div>
+
+          <!-- Products -->
+          <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full loading">
+              <div class="spinner"></div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div id="pagination-container" class="mt-8">
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Estado
+    let currentPage = 1;
+    let totalPages = 1;
+    let totalItems = 0;
+    const pageSize = 12;
+    let categoriesData = [];
+
+    // Filtros desde URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const categorySlugParam = urlParams.get('categorySlug') || '';
+    const categoryIdParam = urlParams.get('category') || '';
+
+    // Cargar categorías para el filtro
+    async function loadCategories() {
+      const select = document.getElementById('category-select');
+      try {
+        const response = await api.getCategories();
+        categoriesData = response.data || [];
+        
+        categoriesData.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.slug;
+          option.textContent = cat.parentName ? `  ↳ ${cat.name}` : cat.name;
+          option.dataset.id = cat.id;
+          
+          if (categorySlugParam === cat.slug) {
+            option.selected = true;
+          }
+          if (categoryIdParam === cat.id) {
+            option.selected = true;
+          }
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error cargando categorías:', error);
+      }
+    }
+
+    // Aplicar filtros desde la UI
+    function getFiltersFromUI() {
+      const categorySelect = document.getElementById('category-select');
+      const selectedOption = categorySelect?.selectedOptions[0];
+      
+      return {
+        search: document.getElementById('search-input')?.value || '',
+        categorySlug: categorySelect?.value || '',
+        categoryId: selectedOption?.dataset?.id || '',
+        department: document.getElementById('department-select')?.value || '',
+        minPrice: document.getElementById('min-price')?.value || '',
+        maxPrice: document.getElementById('max-price')?.value || '',
+        isHandmade: document.getElementById('handmade-check')?.checked || false,
+        sortBy: document.getElementById('sort-select')?.value || 'newest',
+        page: currentPage,
+        size: pageSize
+      };
+    }
+
+    // Aplicar filtros
+    function applyFilters() {
+      currentPage = 1;
+      const filters = getFiltersFromUI();
+      loadProducts(filters);
+      
+      // Actualizar URL
+      const params = new URLSearchParams();
+      if (filters.search) params.set('search', filters.search);
+      if (filters.categorySlug) params.set('categorySlug', filters.categorySlug);
+      if (filters.department) params.set('department', filters.department);
+      if (filters.minPrice) params.set('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+      if (filters.isHandmade) params.set('isHandmade', 'true');
+      if (filters.sortBy && filters.sortBy !== 'newest') params.set('sortBy', filters.sortBy);
+      params.set('page', currentPage);
+      
+      const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+      window.history.pushState({}, '', newUrl);
+    }
+
+    // Limpiar filtros
+    function clearFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('category-select').value = '';
+      document.getElementById('department-select').value = '';
+      document.getElementById('min-price').value = '';
+      document.getElementById('max-price').value = '';
+      document.getElementById('handmade-check').checked = false;
+      document.getElementById('sort-select').value = 'newest';
+      applyFilters();
+    }
+
+    // Cargar productos
+    async function loadProducts(filters = {}) {
+      const container = document.getElementById('products-container');
+      container.innerHTML = '<div class="col-span-full loading"><div class="spinner"></div></div>';
+
+      try {
+        const response = await api.getProducts(filters);
+        const data = response.data;
+        
+        if (data && data.products && data.products.length > 0) {
+          const products = data.products;
+          totalItems = data.pagination?.totalItems || products.length;
+          totalPages = data.pagination?.totalPages || 1;
+          currentPage = data.pagination?.currentPage || 1;
+
+          container.innerHTML = products.map(p => renderProductCard(p)).join('');
+          document.getElementById('total-count').textContent = totalItems;
+          
+          renderPaginationControls();
+        } else {
+          container.innerHTML = `
+            <div class="col-span-full empty-state">
+              <div class="empty-state-icon">🔍</div>
+              <h3 class="empty-state-title">No hay productos</h3>
+              <p>Intenta con otros filtros</p>
+              <button onclick="clearFilters()" class="btn btn-primary mt-4">Limpiar Filtros</button>
+            </div>
+          `;
+          document.getElementById('total-count').textContent = '0';
+          document.getElementById('pagination-container').innerHTML = '';
+        }
+      } catch (error) {
+        console.error('Error cargando productos:', error);
+        container.innerHTML = `
+          <div class="col-span-full empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <h3 class="empty-state-title">Error al cargar</h3>
+            <p>No se pudieron cargar los productos</p>
+            <button onclick="loadProducts(getFiltersFromUI())" class="btn btn-primary mt-4">Reintentar</button>
+          </div>
+        `;
+      }
+    }
+
+    // Renderizar controles de paginación
+    function renderPaginationControls() {
+      const container = document.getElementById('pagination-container');
+      
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const pages = [];
+      const maxVisible = 5;
+      let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let end = Math.min(totalPages, start + maxVisible - 1);
+      
+      if (end - start < maxVisible - 1) {
+        start = Math.max(1, end - maxVisible + 1);
+      }
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      container.innerHTML = `
+        <div class="flex items-center justify-center gap-2">
+          <button 
+            class="btn btn-sm btn-outline" 
+            ${currentPage === 1 ? 'disabled' : ''}
+            onclick="goToPage(${currentPage - 1})"
+          >
+            ← Anterior
+          </button>
+
+          ${start > 1 ? `
+            <button class="btn btn-sm btn-outline" onclick="goToPage(1)">1</button>
+            ${start > 2 ? '<span class="px-2">...</span>' : ''}
+          ` : ''}
+
+          ${pages.map(p => `
+            <button 
+              class="btn btn-sm ${p === currentPage ? 'btn-primary' : 'btn-outline'}" 
+              onclick="goToPage(${p})"
+            >
+              ${p}
+            </button>
+          `).join('')}
+
+          ${end < totalPages ? `
+            ${end < totalPages - 1 ? '<span class="px-2">...</span>' : ''}
+            <button class="btn btn-sm btn-outline" onclick="goToPage(${totalPages})">${totalPages}</button>
+          ` : ''}
+
+          <button 
+            class="btn btn-sm btn-outline" 
+            ${currentPage === totalPages ? 'disabled' : ''}
+            onclick="goToPage(${currentPage + 1})"
+          >
+            Siguiente →
+          </button>
+        </div>
+      `;
+    }
+
+    // Ir a página
+    function goToPage(page) {
+      currentPage = page;
+      const filters = getFiltersFromUI();
+      filters.page = page;
+      loadProducts(filters);
+
+      // Scroll al inicio
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Toggle filtros (mobile)
+    function toggleFilters() {
+      const sidebar = document.querySelector('aside');
+      sidebar.classList.toggle('hidden');
+    }
+
+    // Inicializar con filtros de URL
+    function initWithUrlFilters() {
+      document.getElementById('search-input').value = urlParams.get('search') || '';
+      document.getElementById('department-select').value = urlParams.get('department') || '';
+      document.getElementById('min-price').value = urlParams.get('minPrice') || '';
+      document.getElementById('max-price').value = urlParams.get('maxPrice') || '';
+      document.getElementById('handmade-check').checked = urlParams.get('isHandmade') === 'true';
+      document.getElementById('sort-select').value = urlParams.get('sortBy') || 'newest';
+      currentPage = parseInt(urlParams.get('page')) || 1;
+    }
+
+    // Event listeners
+    document.getElementById('search-input')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyFilters();
+    });
+
+    document.getElementById('min-price')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyFilters();
+    });
+
+    document.getElementById('max-price')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyFilters();
+    });
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', async () => {
+      await renderHeader();
+      await loadCategories();
+      initWithUrlFilters();
+      
+      if (categorySlugParam) {
+        document.getElementById('category-select').value = categorySlugParam;
+      }
+      
+      loadProducts(getFiltersFromUI());
+    });
+  </script>
+</body>
+</html>

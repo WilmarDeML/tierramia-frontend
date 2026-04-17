@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrarse - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#2E7D32', secondary: '#8D6E63', accent: '#FF6F00' },
+          fontFamily: { display: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen" style="background: linear-gradient(135deg, #E8F5E9 0%, #FFF8E1 100%);">
+   
+  <!-- Header -->
+  <div id="header-placeholder"></div>
+  <noscript>
+    <header class="header">
+      <div class="container">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🌿</div>
+          <span>TierraMia</span>
+        </a>
+        <nav>
+          <a href="index.html">Inicio</a>
+          <a href="catalogo.html">Catálogo</a>
+          <a href="registro.html">Registrarse</a>
+        </nav>
+      </div>
+    </header>
+  </noscript>
+
+  <!-- Register Form -->
+  <main class="flex-1 flex items-center justify-center p-4 py-8">
+    <div class="card p-8" style="width: 100%; max-width: 480px;">
+      <div class="text-center mb-8">
+        <h1 class="font-display text-2xl mb-2">Crea tu cuenta</h1>
+        <p class="text-secondary">Únete a la comunidad TierraMia</p>
+      </div>
+
+      <form id="register-form">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input 
+              type="text" 
+              id="firstName" 
+              class="form-input" 
+              placeholder="Juan"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Apellido</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              class="form-input" 
+              placeholder="Pérez"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-input" 
+            placeholder="tu@correo.com"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            class="form-input" 
+            placeholder="+57 300 123 4567"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-input" 
+            placeholder="••••••••"
+            required
+            minlength="8"
+          >
+          <p class="text-xs text-secondary mt-1">Mínimo 8 caracteres</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tipo de cuenta</label>
+          <div class="flex gap-4">
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="role" value="BUYER" checked class="hidden peer">
+              <div class="p-4 border-2 rounded-lg text-center transition-all peer-checked:border-primary peer-checked:bg-green-50">
+                <div class="text-2xl mb-2">🛒</div>
+                <p class="font-medium">Comprador</p>
+                <p class="text-xs text-secondary">Quiero comprar productos</p>
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="role" value="SELLER" class="hidden peer">
+              <div class="p-4 border-2 rounded-lg text-center transition-all peer-checked:border-primary peer-checked:bg-green-50">
+                <div class="text-2xl mb-2">🏪</div>
+                <p class="font-medium">Vendedor</p>
+                <p class="text-xs text-secondary">Quiero vender mis productos</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="flex items-start gap-2 cursor-pointer">
+            <input type="checkbox" id="terms" class="w-5 h-5 mt-0.5" required style="accent-color: var(--color-primary);">
+            <span class="text-sm">
+              Acepto los 
+              <a href="#" class="text-primary hover:underline">Términos y Condiciones</a>
+              y la 
+              <a href="#" class="text-primary hover:underline">Política de Privacidad</a>
+            </span>
+          </label>
+        </div>
+
+        <div id="error-message" class="text-center text-red-500 mb-4 hidden"></div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary w-full btn-lg">
+          Crear Cuenta
+        </button>
+      </form>
+
+      <div class="text-center mt-6">
+        <p class="text-secondary">
+          ¿Ya tienes cuenta? 
+          <a href="login.html" class="text-primary font-medium hover:underline">Inicia sesión</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-4 text-center text-sm text-secondary">
+    <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+
+  <script>
+    if (typeof renderHeader === 'function') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderHeader);
+      } else {
+        setTimeout(renderHeader, 0);
+      }
+    }
+
+    const form = document.getElementById('register-form');
+    const errorDiv = document.getElementById('error-message');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const role = document.querySelector('input[name="role"]:checked').value;
+      const terms = document.getElementById('terms').checked;
+
+      // Validaciones
+      if (!firstName || !lastName || !email || !phone || !password) {
+        showError('Por favor completa todos los campos');
+        return;
+      }
+
+      if (password.length < 8) {
+        showError('La contraseña debe tener al menos 8 caracteres');
+        return;
+      }
+
+      if (!terms) {
+        showError('Debes aceptar los términos y condiciones');
+        return;
+      }
+
+      // Loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner mr-2"></span> Creando cuenta...';
+      errorDiv.classList.add('hidden');
+
+      try {
+        const response = await api.register({
+          firstName,
+          lastName,
+          email,
+          phone,
+          password,
+          role
+        });
+        
+        if (response.success) {
+          showToast('¡Cuenta creada exitosamente!', 'success');
+          
+          setTimeout(() => {
+            window.location.href = role === 'SELLER' ? 'dashboard-vendedor.html' : 'index.html';
+          }, 500);
+        } else {
+          showError(response.error?.message || 'Error al crear la cuenta');
+        }
+      } catch (error) {
+        console.error('Register error:', error);
+        showError(error.message || 'Error al crear la cuenta');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Crear Cuenta';
+      }
+    });
+
+    function showError(message) {
+      errorDiv.textContent = message;
+      errorDiv.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

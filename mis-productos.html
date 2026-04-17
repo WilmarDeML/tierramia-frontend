@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Productos - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2E7D32',
+            secondary: '#8D6E63',
+            accent: '#FF6F00',
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen" style="background: var(--color-bg);">
+   
+  <!-- Header -->
+  <div id="header-placeholder"></div>
+
+  <!-- Content -->
+  <main class="flex-1 container py-8">
+    <div class="text-center py-16">
+      <div class="text-6xl mb-6">📦</div>
+      <h1 class="font-display text-3xl mb-4">Mis Productos</h1>
+      <p class="text-secondary text-lg mb-8 max-w-md mx-auto">
+        Esta funcionalidad está disponible en el panel de vendedor.
+      </p>
+      
+      <div class="flex gap-4 justify-center">
+        <a href="vendedor.html" class="btn btn-primary">
+          🏪 Ir al Panel de Vendedor
+        </a>
+        <a href="catalogo.html" class="btn btn-outline">
+          🛍️ Ver Catálogo
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-4 text-center text-sm text-secondary">
+    <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+
+  <script>
+    if (typeof renderHeader === 'function') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderHeader);
+      } else {
+        setTimeout(renderHeader, 0);
+      }
+    }
+  </script>
+</body>
+</html>

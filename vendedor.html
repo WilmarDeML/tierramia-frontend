@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Tienda - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2E7D32',
+            'primary-dark': '#1B5E20',
+            secondary: '#8D6E63',
+            accent: '#FF6F00',
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen" style="background: var(--color-bg);">
+  
+  <!-- Header Dynamic -->
+  <div id="header-placeholder"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1 container py-8">
+    
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="font-display text-3xl mb-2">Mi Tienda</h1>
+        <p class="text-secondary">Gestiona tus productos y ventas</p>
+      </div>
+      <button onclick="showProductModal()" class="btn btn-primary">
+        + Agregar Producto
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
+            📦
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Productos</p>
+            <p id="stat-products" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-2xl">
+            🛒
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Ventas</p>
+            <p id="stat-sales" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">
+            ⭐
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Valoración</p>
+            <p id="stat-rating" class="text-2xl font-bold">0.0</p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-2xl">
+            👁️
+          </div>
+          <div>
+            <p class="text-sm text-secondary">Visitas</p>
+            <p id="stat-visits" class="text-2xl font-bold">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b mb-6">
+      <button onclick="switchTab('products')" id="tab-products" class="tab-btn active px-6 py-3 font-medium">
+        Mis Productos
+      </button>
+      <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn px-6 py-3 font-medium">
+        Pedidos
+      </button>
+      <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn px-6 py-3 font-medium">
+        Mi Perfil
+      </button>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="content-products" class="tab-content">
+      <div id="products-list" class="space-y-4">
+        <div class="text-center py-8">
+          <div class="spinner mx-auto"></div>
+          <p class="mt-2 text-secondary">Cargando productos...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="content-orders" class="tab-content hidden">
+      <div id="orders-list" class="space-y-4">
+        <div class="text-center py-8">
+          <div class="spinner mx-auto"></div>
+          <p class="mt-2 text-secondary">Cargando pedidos...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div id="content-profile" class="tab-content hidden">
+      <div class="card p-6 max-w-2xl">
+        <h2 class="font-display text-xl mb-4">Información de la Tienda</h2>
+        <form id="profile-form" class="space-y-4">
+          <div class="form-group">
+            <label class="form-label">Nombre de la Tienda</label>
+            <input type="text" id="store-name" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea id="store-description" class="form-input" rows="4"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="form-group">
+              <label class="form-label">Ciudad</label>
+              <input type="text" id="store-city" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Departamento</label>
+              <input type="text" id="store-department" class="form-input">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            Guardar Cambios
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Product Modal -->
+  <div id="product-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white p-6 border-b flex items-center justify-between">
+        <h2 id="modal-title" class="font-display text-xl">Agregar Producto</h2>
+        <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-700">
+          ✕
+        </button>
+      </div>
+      <form id="product-form" class="p-6 space-y-4">
+        <input type="hidden" id="product-id">
+        
+        <div class="form-group">
+          <label class="form-label">Nombre del Producto *</label>
+          <input type="text" id="product-name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Descripción *</label>
+          <textarea id="product-description" class="form-input" rows="3" required></textarea>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">Precio *</label>
+            <input type="number" id="product-price" class="form-input" required min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio Anterior</label>
+            <input type="number" id="product-compare-price" class="form-input" min="0">
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">Stock *</label>
+            <input type="number" id="product-stock" class="form-input" required min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría *</label>
+            <select id="product-category" class="form-input" required>
+              <option value="">Seleccionar...</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">URL de Imagen</label>
+          <input type="url" id="product-image" class="form-input" placeholder="https://...">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">Ciudad de Origen</label>
+            <input type="text" id="product-city" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Departamento</label>
+            <input type="text" id="product-department" class="form-input">
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="product-handmade" class="w-5 h-5" checked>
+            <span>Producto artesanal</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="product-active" class="w-5 h-5" checked>
+            <span>Activo</span>
+          </label>
+        </div>
+        
+        <div class="flex gap-4 pt-4">
+          <button type="button" onclick="closeProductModal()" class="btn btn-outline flex-1">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary flex-1">
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <style>
+    .tab-btn {
+      color: var(--color-text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      color: var(--color-primary);
+    }
+    .tab-btn.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+  </style>
+
+  <script>
+    let currentTab = 'products';
+    let sellerProducts = [];
+    let sellerOrders = [];
+    let sellerProfile = null;
+
+    // Check auth
+    if (!api.isAuthenticated() || !api.isSeller()) {
+      window.location.href = 'login.html';
+    }
+
+    // Switch tabs
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+      document.getElementById(`content-${tab}`).classList.remove('hidden');
+      
+      // Load data when switching tabs
+      if (tab === 'orders') {
+        loadOrders();
+      } else if (tab === 'products') {
+        loadProducts();
+      }
+    }
+
+    // Load seller data
+    async function loadSellerData() {
+      try {
+        const user = api.getUser();
+        console.log('User data:', user);
+        
+        // Load products using user's ID as seller ID
+        await loadProducts();
+        
+      } catch (error) {
+        console.error('Error loading seller data:', error);
+      }
+    }
+
+    function updateStats() {
+      // Usar sellerProducts directamente para el contador
+      const productCount = sellerProducts ? sellerProducts.length : 0;
+      document.getElementById('stat-products').textContent = productCount;
+      document.getElementById('stat-sales').textContent = '0';
+      document.getElementById('stat-rating').textContent = '0.0';
+      document.getElementById('stat-visits').textContent = '0';
+    }
+
+    function updateProfileForm() {
+      if (sellerProfile) {
+        document.getElementById('store-name').value = sellerProfile.businessName || '';
+        document.getElementById('store-description').value = sellerProfile.businessDescription || '';
+        document.getElementById('store-city').value = sellerProfile.city || '';
+        document.getElementById('store-department').value = sellerProfile.department || '';
+      }
+    }
+
+    // Load products
+    async function loadProducts() {
+      const container = document.getElementById('products-list');
+      try {
+        // Get the seller's products using user's ID (which is the sellerId)
+        const user = api.getUser();
+        const sellerId = user?.id;
+        console.log('Loading products for seller ID:', sellerId);
+        
+        const response = sellerId 
+          ? await api.getSellerProducts(sellerId, { size: 100 })
+          : await api.getProducts({ size: 100 });
+        
+        sellerProducts = response.data?.products || [];
+        console.log('Seller products loaded:', sellerProducts.length, sellerProducts);
+        
+        // Update stats after loading products
+        updateStats();
+        
+        if (sellerProducts.length === 0) {
+          container.innerHTML = `
+            <div class="card p-8 text-center">
+              <div class="text-4xl mb-4">📦</div>
+              <h3 class="font-display text-xl mb-2">No tienes productos</h3>
+              <p class="text-secondary mb-4">Agrega tu primer producto para empezar a vender</p>
+              <button onclick="showProductModal()" class="btn btn-primary">
+                + Agregar Producto
+              </button>
+            </div>
+          `;
+        } else {
+          container.innerHTML = sellerProducts.map(p => `
+            <div class="card p-4 flex gap-4">
+              <img src="${p.mainImageUrl || 'https://via.placeholder.com/100'}" alt="${p.name}" 
+                   class="w-24 h-24 object-cover rounded-lg">
+              <div class="flex-1">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <h3 class="font-medium">${p.name}</h3>
+                    <p class="text-sm text-secondary line-clamp-1">${p.description || ''}</p>
+                  </div>
+                  <div class="flex gap-2">
+                    <button onclick="editProduct('${p.id}')" class="btn btn-sm btn-outline">Editar</button>
+                    <button onclick="deleteProduct('${p.id}')" class="btn btn-sm btn-outline text-red-600">Eliminar</button>
+                  </div>
+                </div>
+                <div class="flex gap-4 mt-2 text-sm">
+                  <span class="font-bold text-lg">${formatPrice(p.price)}</span>
+                  ${p.compareAtPrice && p.compareAtPrice > p.price ? 
+                    `<span class="text-secondary line-through">${formatPrice(p.compareAtPrice)}</span>` : ''}
+                  <span class="${p.isActive ? 'text-green-600' : 'text-red-600'}">
+                    ${p.isActive ? '✓ Activo' : '✕ Inactivo'}
+                  </span>
+                  <span>Stock: ${p.stockQuantity}</span>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+        
+        updateStats();
+      } catch (error) {
+        console.error('Error loading products:', error);
+        container.innerHTML = `
+          <div class="card p-8 text-center text-red-600">
+            Error al cargar productos
+          </div>
+        `;
+      }
+    }
+
+    // Load orders
+    async function loadOrders() {
+      const container = document.getElementById('orders-list');
+      try {
+        const response = await api.getOrders();
+        sellerOrders = response.data || [];
+        
+        if (sellerOrders.length === 0) {
+          container.innerHTML = `
+            <div class="card p-8 text-center">
+              <div class="text-4xl mb-4">📋</div>
+              <h3 class="font-display text-xl mb-2">No tienes pedidos</h3>
+              <p class="text-secondary">Los pedidos aparecerán aquí cuando los clientes comprarem tus productos</p>
+            </div>
+          `;
+        } else {
+          const statusColors = {
+            'PENDING': 'bg-yellow-100 text-yellow-700',
+            'CONFIRMED': 'bg-blue-100 text-blue-700',
+            'PROCESSING': 'bg-blue-100 text-blue-700',
+            'SHIPPED': 'bg-purple-100 text-purple-700',
+            'DELIVERED': 'bg-green-100 text-green-700',
+            'CANCELLED': 'bg-red-100 text-red-700'
+          };
+          
+          container.innerHTML = sellerOrders.map(o => `
+            <div class="card p-4">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <p class="font-mono text-sm text-secondary">#${o.orderNumber || o.id?.substring(0, 8)}</p>
+                  <p class="font-medium">${o.buyerFullName || o.buyerEmail}</p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[o.status] || 'bg-gray-100'}">
+                  ${o.status || 'N/A'}
+                </span>
+              </div>
+              <div class="flex justify-between items-center text-sm">
+                <span class="text-secondary">${o.items?.length || 0} producto(s)</span>
+                <span class="font-bold text-primary">${formatPrice(o.totalAmount || 0)}</span>
+              </div>
+              <div class="mt-2 pt-2 border-t text-xs text-secondary">
+                ${o.shippingCity}, ${o.shippingDepartment} - ${formatDate(o.createdAt)}
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        container.innerHTML = `
+          <div class="card p-8 text-center text-red-600">
+            Error al cargar pedidos
+          </div>
+        `;
+      }
+    }
+
+    // Load categories for modal
+    async function loadCategoriesForModal() {
+      const select = document.getElementById('product-category');
+      try {
+        const response = await api.getCategories();
+        const categories = response.data || [];
+        
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.parentName ? `${cat.parentName} → ${cat.name}` : cat.name;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    }
+
+    // Show product modal
+    function showProductModal(product = null) {
+      document.getElementById('product-modal').classList.remove('hidden');
+      document.getElementById('product-form').reset();
+      document.getElementById('product-id').value = '';
+      document.getElementById('modal-title').textContent = 'Agregar Producto';
+      
+      if (product) {
+        document.getElementById('modal-title').textContent = 'Editar Producto';
+        document.getElementById('product-id').value = product.id;
+        document.getElementById('product-name').value = product.name;
+        document.getElementById('product-description').value = product.description;
+        document.getElementById('product-price').value = product.price;
+        document.getElementById('product-compare-price').value = product.compareAtPrice || '';
+        document.getElementById('product-stock').value = product.stockQuantity;
+        document.getElementById('product-category').value = product.categoryId;
+        document.getElementById('product-image').value = product.mainImageUrl || '';
+        document.getElementById('product-city').value = product.originCity || '';
+        document.getElementById('product-department').value = product.originDepartment || '';
+        document.getElementById('product-handmade').checked = product.isHandmade;
+        document.getElementById('product-active').checked = product.isActive;
+      }
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+    }
+
+    // Edit product
+    function editProduct(id) {
+      const product = sellerProducts.find(p => p.id === id);
+      if (product) {
+        showProductModal(product);
+      }
+    }
+
+    // Delete product
+    async function deleteProduct(id) {
+      if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+      
+      try {
+        await api.deleteProduct(id);
+        showToast('Producto eliminado', 'success');
+        loadProducts();
+      } catch (error) {
+        showToast('Error al eliminar producto', 'error');
+      }
+    }
+
+    // Product form submit
+    document.getElementById('product-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const productId = document.getElementById('product-id').value;
+      const productData = {
+        name: document.getElementById('product-name').value,
+        description: document.getElementById('product-description').value,
+        price: parseFloat(document.getElementById('product-price').value),
+        compareAtPrice: parseFloat(document.getElementById('product-compare-price').value) || null,
+        stockQuantity: parseInt(document.getElementById('product-stock').value),
+        categoryId: document.getElementById('product-category').value,
+        mainImageUrl: document.getElementById('product-image').value,
+        originCity: document.getElementById('product-city').value,
+        originDepartment: document.getElementById('product-department').value,
+        isHandmade: document.getElementById('product-handmade').checked,
+        isActive: document.getElementById('product-active').checked
+      };
+      
+      try {
+        if (productId) {
+          await api.updateProduct(productId, productData);
+          showToast('Producto actualizado', 'success');
+        } else {
+          await api.createProduct(productData);
+          showToast('Producto creado', 'success');
+        }
+        closeProductModal();
+        loadProducts();
+      } catch (error) {
+        showToast(error.message || 'Error al guardar producto', 'error');
+      }
+    });
+
+    // Profile form submit
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showToast('Perfil actualizado', 'success');
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      loadSellerData();
+      loadCategoriesForModal();
+    });
+  </script>
+</body>
+</html>

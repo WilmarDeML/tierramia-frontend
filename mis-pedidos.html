@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Pedidos - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#2E7D32', secondary: '#8D6E63', accent: '#FF6F00' },
+          fontFamily: { display: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen">
+  
+  <div id="header-placeholder"></div>
+
+  <main class="flex-1" style="background: var(--color-bg);">
+    <div class="container py-8">
+      
+      <div class="mb-8">
+        <h1 class="font-display text-3xl mb-2">Mis Pedidos</h1>
+        <p class="text-secondary">Historial de tus compras en TierraMia</p>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading" class="card p-8 text-center">
+        <div class="loading"><div class="spinner"></div></div>
+        <p class="mt-4 text-secondary">Cargando tus pedidos...</p>
+      </div>
+
+      <!-- Auth Required -->
+      <div id="auth-required" class="card p-8 text-center hidden">
+        <div class="text-5xl mb-4">🔒</div>
+        <h2 class="font-display text-2xl mb-2">Inicia Sesión</h2>
+        <p class="text-secondary mb-6">Debes iniciar sesión para ver tus pedidos</p>
+        <a href="login.html" class="btn btn-primary">Iniciar Sesión</a>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-orders" class="card p-8 text-center hidden">
+        <div class="text-5xl mb-4">📦</div>
+        <h2 class="font-display text-2xl mb-2">No tienes pedidos aún</h2>
+        <p class="text-secondary mb-6">¡Explora nuestro catálogo y haz tu primera compra!</p>
+        <a href="catalogo.html" class="btn btn-primary">Ver Catálogo</a>
+      </div>
+
+      <!-- Orders List -->
+      <div id="orders-content" class="hidden">
+        
+        <!-- Filters -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <button onclick="filterOrders('ALL')" class="filter-btn active" data-filter="ALL">Todos</button>
+          <button onclick="filterOrders('PENDING')" class="filter-btn" data-filter="PENDING">Pendientes</button>
+          <button onclick="filterOrders('CONFIRMED')" class="filter-btn" data-filter="CONFIRMED">Confirmados</button>
+          <button onclick="filterOrders('PROCESSING')" class="filter-btn" data-filter="PROCESSING">Procesando</button>
+          <button onclick="filterOrders('SHIPPED')" class="filter-btn" data-filter="SHIPPED">Enviados</button>
+          <button onclick="filterOrders('DELIVERED')" class="filter-btn" data-filter="DELIVERED">Entregados</button>
+          <button onclick="filterOrders('CANCELLED')" class="filter-btn" data-filter="CANCELLED">Cancelados</button>
+        </div>
+
+        <div id="orders-list" class="space-y-4">
+          <!-- Orders will be rendered here -->
+        </div>
+
+        <div id="no-results" class="card p-8 text-center hidden">
+          <p class="text-secondary">No hay pedidos con este filtro</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <style>
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid #E0E0E0;
+      background: white;
+      color: #666;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover {
+      border-color: #2E7D32;
+      color: #2E7D32;
+    }
+    .filter-btn.active {
+      background: #2E7D32;
+      color: white;
+      border-color: #2E7D32;
+    }
+  </style>
+
+  <script>
+    let allOrders = [];
+    let currentFilter = 'ALL';
+
+    function getStatusLabel(status) {
+      const labels = {
+        'PENDING': 'Pendiente',
+        'CONFIRMED': 'Confirmado',
+        'PROCESSING': 'Procesando',
+        'SHIPPED': 'Enviado',
+        'DELIVERED': 'Entregado',
+        'CANCELLED': 'Cancelado'
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusBadgeClass(status) {
+      const classes = {
+        'PENDING': 'badge-pending',
+        'CONFIRMED': 'badge-info',
+        'PROCESSING': 'badge-info',
+        'SHIPPED': 'badge-info',
+        'DELIVERED': 'badge-success',
+        'CANCELLED': 'badge-error'
+      };
+      return classes[status] || 'badge-pending';
+    }
+
+    function getPaymentStatusClass(status) {
+      const classes = {
+        'PENDING': 'text-yellow-600',
+        'COMPLETED': 'text-green-600',
+        'FAILED': 'text-red-600',
+        'REFUNDED': 'text-blue-600'
+      };
+      return classes[status] || '';
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById('orders-list');
+      const noResults = document.getElementById('no-results');
+      
+      if (orders.length === 0) {
+        container.innerHTML = '';
+        noResults.classList.remove('hidden');
+        return;
+      }
+
+      noResults.classList.add('hidden');
+      
+      container.innerHTML = orders.map(order => `
+        <div class="card p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="viewOrder('${order.id}')">
+          <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
+            <div>
+              <div class="flex items-center gap-3 mb-1">
+                <h3 class="font-display text-lg">Pedido #${order.id}</h3>
+                <span class="badge ${getStatusBadgeClass(order.status)}">${getStatusLabel(order.status)}</span>
+              </div>
+              <p class="text-sm text-secondary">${formatDate(order.createdAt)}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-lg text-primary">${formatPrice(order.totalAmount)}</p>
+              <p class="text-sm text-secondary">
+                Pago: <span class="${getPaymentStatusClass(order.paymentStatus)}">${order.paymentStatus}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-4 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-secondary">📍</span>
+              <span>${order.shippingCity}, ${order.shippingDepartment}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-secondary">💳</span>
+              <span>${order.paymentMethod.replace(/_/g, ' ')}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-secondary">🛍️</span>
+              <span>${order.items.length} producto(s)</span>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-4 overflow-x-auto pb-2">
+            ${order.items.slice(0, 4).map(item => `
+              <img 
+                src="${item.product?.mainImageUrl || 'https://via.placeholder.com/60x60?text=Img'}" 
+                alt="${item.product?.name || 'Producto'}"
+                class="w-14 h-14 object-cover rounded-lg flex-shrink-0"
+                onerror="this.src='https://via.placeholder.com/60x60?text=Img'"
+              >
+            `).join('')}
+            ${order.items.length > 4 ? `<div class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-secondary flex-shrink-0">+${order.items.length - 4}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterOrders(status) {
+      currentFilter = status;
+      
+      // Update filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === status);
+      });
+
+      // Filter and render
+      const filtered = status === 'ALL' 
+        ? allOrders 
+        : allOrders.filter(o => o.status === status);
+      
+      renderOrders(filtered);
+    }
+
+    function viewOrder(orderId) {
+      window.location.href = `pedido-confirmado.html?id=${orderId}`;
+    }
+
+    async function loadOrders() {
+      renderHeader();
+
+      if (!api.isAuthenticated()) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('auth-required').classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await api.getOrders();
+        
+        document.getElementById('loading').classList.add('hidden');
+        
+        if (response.success && response.data && response.data.length > 0) {
+          allOrders = response.data;
+          document.getElementById('orders-content').classList.remove('hidden');
+          renderOrders(allOrders);
+        } else {
+          document.getElementById('empty-orders').classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('empty-orders').classList.remove('hidden');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadOrders);
+  </script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Carrito - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#2E7D32', secondary: '#8D6E63', accent: '#FF6F00' },
+          fontFamily: { display: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen">
+  
+  <!-- Header -->
+  <div id="header-placeholder"></div>
+  <noscript>
+    <header class="header">
+      <div class="container">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🌿</div>
+          <span>TierraMia</span>
+        </a>
+        <nav>
+          <a href="index.html">Inicio</a>
+          <a href="catalogo.html">Catálogo</a>
+          <a href="carrito.html">Carrito</a>
+        </nav>
+      </div>
+    </header>
+  </noscript>
+
+  <!-- Main Content -->
+  <main class="flex-1" style="background: var(--color-bg);">
+    <div class="container py-8">
+      
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="font-display text-3xl mb-2">Mi Carrito</h1>
+        <p class="text-secondary" id="cart-summary">0 productos en tu carrito</p>
+      </div>
+
+      <div id="cart-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Cart Items -->
+        <div class="lg:col-span-2">
+          <div id="cart-items">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="lg:col-span-1">
+          <div class="card p-6 sticky top-24">
+            <h2 class="font-display text-xl mb-4">Resumen del Pedido</h2>
+            
+            <div id="cart-summary-details">
+              <div class="flex justify-between mb-2">
+                <span class="text-secondary">Subtotal</span>
+                <span id="subtotal">$0</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-secondary">Envío</span>
+                <span class="text-success">Gratis</span>
+              </div>
+              <div class="border-t my-4" style="border-color: #E0E0E0;"></div>
+              <div class="flex justify-between mb-6">
+                <span class="font-bold text-lg">Total</span>
+                <span id="total" class="font-bold text-lg text-primary">$0</span>
+              </div>
+            </div>
+
+            <button id="checkout-btn" onclick="checkout()" class="btn btn-primary btn-lg w-full" disabled>
+              Proceder al Pago
+            </button>
+
+            <a href="catalogo.html" class="btn btn-outline w-full mt-3">
+              Continuar Comprando
+            </a>
+
+            <!-- Trust Badges -->
+            <div class="mt-6 pt-4 border-t" style="border-color: #E0E0E0;">
+              <div class="flex items-center gap-2 text-sm text-secondary mb-2">
+                🔒 Pago 100% seguro
+              </div>
+              <div class="flex items-center gap-2 text-sm text-secondary mb-2">
+                🚚 Envío a todo Colombia
+              </div>
+              <div class="flex items-center gap-2 text-sm text-secondary">
+                ↩️ Devolución en 30 días
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Renderizar carrito
+    function renderCart() {
+      const cart = store.getCart();
+      const itemsContainer = document.getElementById('cart-items');
+      const summaryEl = document.getElementById('cart-summary');
+      const checkoutBtn = document.getElementById('checkout-btn');
+
+      if (cart.length === 0) {
+        itemsContainer.innerHTML = `
+          <div class="card p-8 text-center">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">🛒</div>
+            <h2 class="font-display text-2xl mb-2">Tu carrito está vacío</h2>
+            <p class="text-secondary mb-6">¡Agrega algunos productos colombianos!</p>
+            <a href="catalogo.html" class="btn btn-primary btn-lg">
+              Ver Productos
+            </a>
+          </div>
+        `;
+        summaryEl.textContent = '0 productos en tu carrito';
+        checkoutBtn.disabled = true;
+        updateSummary(0);
+        return;
+      }
+
+      summaryEl.textContent = `${store.getItemCount()} producto(s) en tu carrito`;
+      checkoutBtn.disabled = false;
+
+      itemsContainer.innerHTML = cart.map(item => `
+        <div class="card p-4 mb-4" data-product-id="${item.productId}">
+          <div class="flex gap-4">
+            <img 
+              src="${item.product?.mainImageUrl || item.productImageUrl || ''}" 
+              alt="${item.product?.name || item.productName || 'Producto'}"
+              class="w-24 h-24 object-cover rounded-lg"
+              onerror="this.src='https://via.placeholder.com/100x100?text=Sin+img'"
+            >
+            
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <div>
+                  <h3 class="font-medium">${item.product?.name || item.productName || 'Producto'}</h3>
+                  <p class="text-sm text-secondary">
+                    ${item.product?.originDepartment || ''} ${item.product?.originCity ? ', ' + item.product.originCity : ''}
+                  </p>
+                </div>
+                <button 
+                  onclick="removeItem('${item.productId}')" 
+                  class="text-secondary hover:text-red-500"
+                  title="Eliminar"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between mt-4">
+                <div class="flex items-center border rounded-lg" style="border-color: #E0E0E0;">
+                  <button 
+                    onclick="changeQuantity('${item.productId}', -1)" 
+                    class="px-3 py-1 hover:bg-gray-100"
+                  >-</button>
+                  <span class="px-4">${item.quantity}</span>
+                  <button 
+                    onclick="changeQuantity('${item.productId}', 1)" 
+                    class="px-3 py-1 hover:bg-gray-100"
+                  >+</button>
+                </div>
+
+                <div class="text-right">
+                  <p class="font-bold text-primary">${formatPrice((item.product?.price || item.unitPrice || 0) * item.quantity)}</p>
+                  <p class="text-sm text-secondary">
+                    ${formatPrice(item.product?.price || item.unitPrice || 0)} c/u
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      updateSummary(store.getTotal());
+    }
+
+    // Actualizar resumen
+    function updateSummary(total) {
+      document.getElementById('subtotal').textContent = formatPrice(total);
+      document.getElementById('total').textContent = formatPrice(total);
+    }
+
+    // Cambiar cantidad
+    function changeQuantity(productId, delta) {
+      const item = store.getCart().find(i => i.productId === productId);
+      if (item) {
+        const newQty = item.quantity + delta;
+        if (newQty <= 0) {
+          removeItem(productId);
+        } else {
+          store.updateQuantity(productId, newQty);
+          renderCart();
+        }
+      }
+    }
+
+    // Eliminar item
+    function removeItem(productId) {
+      store.removeItem(productId).then(() => {
+        showToast('Producto eliminado del carrito', 'success');
+        renderCart();
+      });
+    }
+
+    // Checkout
+    function checkout() {
+      if (!api.isAuthenticated()) {
+        showToast('Debes iniciar sesión para continuar', 'warning');
+        window.location.href = 'login.html?redirect=carrito.html';
+        return;
+      }
+
+      const cart = store.getCart();
+      if (cart.length === 0) {
+        showToast('Tu carrito está vacío', 'warning');
+        return;
+      }
+
+      window.location.href = 'checkout.html';
+    }
+
+    // Sincronizar con backend si está autenticado
+    async function syncCart() {
+      if (api.isAuthenticated()) {
+        try {
+          await store.syncWithBackend();
+          renderCart();
+        } catch (error) {
+          console.log('No se pudo sincronizar el carrito');
+        }
+      }
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderHeader();
+      
+      // Esperar a que el store esté inicializado
+      await store.waitForInit();
+      
+      renderCart();
+      
+      store.subscribe(() => {
+        renderCart();
+      });
+    });
+  </script>
+</body>
+</html>

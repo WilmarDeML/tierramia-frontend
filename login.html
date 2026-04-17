@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#2E7D32', secondary: '#8D6E63', accent: '#FF6F00' },
+          fontFamily: { display: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen" style="background: linear-gradient(135deg, #E8F5E9 0%, #FFF8E1 100%);">
+   
+  <!-- Header -->
+  <div id="header-placeholder"></div>
+  <noscript>
+    <header class="header">
+      <div class="container">
+        <a href="index.html" class="logo">
+          <div class="logo-icon">🌿</div>
+          <span>TierraMia</span>
+        </a>
+        <nav>
+          <a href="index.html">Inicio</a>
+          <a href="catalogo.html">Catálogo</a>
+          <a href="login.html">Iniciar Sesión</a>
+        </nav>
+      </div>
+    </header>
+  </noscript>
+
+  <!-- Login Form -->
+  <main class="flex-1 flex items-center justify-center p-4">
+    <div class="card p-8" style="width: 100%; max-width: 420px;">
+      <div class="text-center mb-8">
+        <h1 class="font-display text-2xl mb-2">¡Bienvenido de nuevo!</h1>
+        <p class="text-secondary">Ingresa tus datos para continuar</p>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-input" 
+            placeholder="tu@correo.com"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-input" 
+            placeholder="••••••••"
+            required
+          >
+        </div>
+
+        <div id="error-message" class="text-center text-red-500 mb-4 hidden"></div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary w-full btn-lg">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <div class="text-center mt-6">
+        <p class="text-secondary">
+          ¿No tienes cuenta? 
+          <a href="registro.html" class="text-primary font-medium hover:underline">Regístrate aquí</a>
+        </p>
+      </div>
+
+      <div class="mt-6 pt-6 border-t" style="border-color: #E0E0E0;">
+        <p class="text-sm text-secondary text-center">
+          ¿Solo quieres explorar? 
+          <a href="catalogo.html" class="text-primary">Ver productos sin cuenta</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-4 text-center text-sm text-secondary">
+    <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+
+  <script>
+    // Ensure header renders after all scripts load
+    if (typeof renderHeader === 'function') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderHeader);
+      } else {
+        setTimeout(renderHeader, 0);
+      }
+    }
+
+    // Login form handler
+    const form = document.getElementById('login-form');
+    const errorDiv = document.getElementById('error-message');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showError('Por favor completa todos los campos');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner mr-2"></span> Ingresando...';
+      errorDiv.classList.add('hidden');
+
+      try {
+        const response = await api.login(email, password);
+        
+        if (response.success) {
+          showToast('¡Bienvenido!', 'success');
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 500);
+        } else {
+          showError(response.error?.message || 'Error al iniciar sesión');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showError(error.message || 'Credenciales incorrectas');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Iniciar Sesión';
+      }
+    });
+
+    function showError(message) {
+      errorDiv.textContent = message;
+      errorDiv.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

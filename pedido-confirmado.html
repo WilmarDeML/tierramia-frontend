@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido Confirmado - TierraMia</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#2E7D32', secondary: '#8D6E63', accent: '#FF6F00' },
+          fontFamily: { display: ['Playfair Display', 'serif'], sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="flex flex-col min-h-screen">
+  
+  <div id="header-placeholder"></div>
+
+  <main class="flex-1" style="background: var(--color-bg);">
+    <div class="container py-8">
+      
+      <div id="loading" class="card p-8 text-center">
+        <div class="loading"><div class="spinner"></div></div>
+        <p class="mt-4 text-secondary">Cargando detalles del pedido...</p>
+      </div>
+
+      <div id="order-content" class="hidden max-w-2xl mx-auto">
+        
+        <!-- Success Header -->
+        <div class="text-center mb-8">
+          <div class="text-6xl mb-4">✅</div>
+          <h1 class="font-display text-3xl mb-2 text-primary">¡Pedido Confirmado!</h1>
+          <p class="text-secondary">Gracias por tu compra. Tu pedido ha sido recibido.</p>
+        </div>
+
+        <!-- Order Details Card -->
+        <div class="card p-6 mb-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h2 class="font-display text-xl">Detalles del Pedido</h2>
+              <p class="text-sm text-secondary">Pedido #<span id="order-id"></span></p>
+            </div>
+            <span id="order-status" class="badge badge-pending">Pendiente</span>
+          </div>
+
+          <div class="border-t pt-4" style="border-color: #E0E0E0;">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p class="text-secondary">Fecha</p>
+                <p id="order-date" class="font-medium"></p>
+              </div>
+              <div>
+                <p class="text-secondary">Total</p>
+                <p id="order-total" class="font-bold text-primary text-lg"></p>
+              </div>
+              <div>
+                <p class="text-secondary">Método de Pago</p>
+                <p id="order-payment"></p>
+              </div>
+              <div>
+                <p class="text-secondary">Estado del Pago</p>
+                <p id="order-payment-status" class="font-medium"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Info -->
+        <div class="card p-6 mb-6">
+          <h3 class="font-display text-lg mb-3">📍 Información de Envío</h3>
+          <div class="text-sm space-y-1">
+            <p id="order-address" class="font-medium"></p>
+            <p id="order-city"></p>
+            <p id="order-phone" class="text-secondary"></p>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div class="card p-6 mb-6">
+          <h3 class="font-display text-lg mb-3">🛍️ Productos</h3>
+          <div id="order-items" class="space-y-3">
+            <!-- Items will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <a href="mis-pedidos.html" class="btn btn-primary flex-1 text-center">
+            Ver Mis Pedidos
+          </a>
+          <a href="catalogo.html" class="btn btn-outline flex-1 text-center">
+            Continuar Comprando
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Error State -->
+      <div id="error-content" class="hidden card p-8 text-center max-w-2xl mx-auto">
+        <div class="text-5xl mb-4">❌</div>
+        <h2 class="font-display text-2xl mb-2">No se encontró el pedido</h2>
+        <p class="text-secondary mb-6">El pedido que buscas no existe o no tienes acceso a él.</p>
+        <a href="mis-pedidos.html" class="btn btn-primary">
+          Ver Mis Pedidos
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2025 TierraMia. Todos los derechos reservados. 🇨🇴</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    function getOrderIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        'PENDING': 'Pendiente',
+        'CONFIRMED': 'Confirmado',
+        'PROCESSING': 'Procesando',
+        'SHIPPED': 'Enviado',
+        'DELIVERED': 'Entregado',
+        'CANCELLED': 'Cancelado'
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusBadgeClass(status) {
+      const classes = {
+        'PENDING': 'badge-pending',
+        'CONFIRMED': 'badge-info',
+        'PROCESSING': 'badge-info',
+        'SHIPPED': 'badge-info',
+        'DELIVERED': 'badge-success',
+        'CANCELLED': 'badge-error'
+      };
+      return classes[status] || 'badge-pending';
+    }
+
+    function getPaymentMethodLabel(method) {
+      const labels = {
+        'CREDIT_CARD': 'Tarjeta de Crédito',
+        'DEBIT_CARD': 'Tarjeta Débito',
+        'PSE': 'PSE',
+        'BANCOLOMBIA_TRANSFER': 'Transferencia Bancolombia',
+        'Nequi': 'Nequi',
+        'Daviplata': 'Daviplata',
+        'CASH_ON_DELIVERY': 'Pago Contra Entrega'
+      };
+      return labels[method] || method;
+    }
+
+    function getPaymentStatusLabel(status) {
+      const labels = {
+        'PENDING': 'Pendiente',
+        'COMPLETED': 'Completado',
+        'FAILED': 'Fallido',
+        'REFUNDED': 'Reembolsado'
+      };
+      return labels[status] || status;
+    }
+
+    async function loadOrder() {
+      renderHeader();
+
+      const orderId = getOrderIdFromUrl();
+      
+      if (!orderId) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error-content').classList.remove('hidden');
+        return;
+      }
+
+      if (!api.isAuthenticated()) {
+        showToast('Debes iniciar sesión', 'warning');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const response = await api.getOrder(orderId);
+        
+        if (response.success && response.data) {
+          renderOrder(response.data);
+        } else {
+          throw new Error('Pedido no encontrado');
+        }
+      } catch (error) {
+        console.error('Error loading order:', error);
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('error-content').classList.remove('hidden');
+      }
+    }
+
+    function renderOrder(order) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('order-content').classList.remove('hidden');
+
+      // Basic info
+      document.getElementById('order-id').textContent = order.id;
+      document.getElementById('order-date').textContent = formatDate(order.createdAt);
+      document.getElementById('order-total').textContent = formatPrice(order.totalAmount);
+
+      // Status badge
+      const statusBadge = document.getElementById('order-status');
+      statusBadge.textContent = getStatusLabel(order.status);
+      statusBadge.className = `badge ${getStatusBadgeClass(order.status)}`;
+
+      // Payment
+      document.getElementById('order-payment').textContent = getPaymentMethodLabel(order.paymentMethod);
+      
+      const paymentStatusEl = document.getElementById('order-payment-status');
+      paymentStatusEl.textContent = getPaymentStatusLabel(order.paymentStatus);
+
+      // Shipping
+      document.getElementById('order-address').textContent = order.shippingAddress;
+      document.getElementById('order-city').textContent = `${order.shippingCity}, ${order.shippingDepartment}`;
+      document.getElementById('order-phone').textContent = order.shippingPhone;
+
+      // Items
+      const itemsContainer = document.getElementById('order-items');
+      itemsContainer.innerHTML = order.items.map(item => `
+        <div class="flex gap-3 items-center p-3 bg-gray-50 rounded-lg">
+          <img 
+            src="${item.product?.mainImageUrl || 'https://via.placeholder.com/48x48?text=Img'}" 
+            alt="${item.product?.name || 'Producto'}"
+            class="w-12 h-12 object-cover rounded"
+            onerror="this.src='https://via.placeholder.com/48x48?text=Img'"
+          >
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-sm truncate">${item.product?.name || 'Producto'}</p>
+            <p class="text-xs text-secondary">Cant: ${item.quantity} × ${formatPrice(item.priceAtPurchase)}</p>
+          </div>
+          <p class="font-medium text-sm">${formatPrice(item.quantity * item.priceAtPurchase)}</p>
+        </div>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadOrder);
+  </script>
+</body>
+</html>
